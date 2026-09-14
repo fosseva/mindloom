@@ -1,58 +1,69 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Mindloom
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Mindloom is an API-first personal learning system for deliberate recall, articulation, application, and spaced review. Laravel owns the domain and business workflows; future web, mobile, CLI, and MCP clients should call the same application actions.
 
-## About Laravel
+## Domain
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- A `User` owns `Deck` records, and a deck contains `Card` records.
+- `CardType` is a code-backed enum: `remember`, `explain`, `apply`, or `note`.
+- Each card has one normalized subtype record in `remember_cards`, `explain_cards`, `apply_cards`, or `note_cards`.
+- `learning_records` stores per-user scheduling state separately from shareable card content.
+- `card_reviews` is append-only review history containing normalized ratings from 1 to 4.
+- Multi-record workflows live in `app/Actions`, independently of HTTP controllers.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## API
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Version 1 routes live under `/api/v1` and use Laravel Sanctum's stateful cookie authentication for the first-party SPA. The frontend first requests `/sanctum/csrf-cookie`, then establishes a session through `POST /api/v1/session`.
 
-## Learning Laravel
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| GET, POST | `/api/v1/decks` | List or create decks |
+| GET, PATCH, DELETE | `/api/v1/decks/{deck}` | Read, update, or soft-delete a deck |
+| GET, POST | `/api/v1/decks/{deck}/cards` | List or create cards in a deck |
+| GET, PATCH, DELETE | `/api/v1/cards/{card}` | Read, update/archive, or soft-delete a card |
+| GET | `/api/v1/cards/due` | List the authenticated user's due cards |
+| POST | `/api/v1/cards/{card}/reviews` | Record a rating and schedule the next review |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Card creation uses a flat client payload. For example:
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```json
+{
+  "type": "remember",
+  "question": "What is idempotency?",
+  "answer": "Repeating the operation has the same intended effect.",
+  "hint": null
+}
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Responses keep subtype fields under `content` and per-user scheduling state under `learning`, avoiding exposure of subtype table names.
 
-## Contributing
+Deck and card index/show endpoints use Spatie Laravel Query Builder with explicit allow lists. Supported query parameters include deck name and archived filters, card type and archived filters, sorting, and relationship includes. Deck sort order is stored per user in `user_deck_preferences`, keeping shared deck content independent from personal organization.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Scheduling
 
-## Code of Conduct
+`ScheduleNextReviewAction` implements the deliberately simple first algorithm. Ratings 1–2 schedule learning/relearning; ratings 3–4 increase day-based intervals and enter reviewing. `RecordCardReviewAction` locks the learning record, records before/after values, and updates it in one transaction. All application actions are invokable. The scheduler can be replaced without changing the API or schema.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Frontend
 
-## Security Vulnerabilities
+The independent React and TypeScript client lives in `/frontend`. It uses Vite, Tailwind CSS 4, Sanctum's CSRF cookie flow, and only communicates through the JSON API.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Frontend environment values live in `.env.development`; deployments should provide `VITE_API_BASE_URL` and `VITE_APP_HOST` based on `.env.example`. Local development uses `http://mindloom.test` for the API and `mindloom.test:5174` for Vite so Sanctum cookies remain same-site.
+Node.js 20.19 or newer is required by the frontend build toolchain.
 
-## License
+```bash
+php artisan serve
+cd frontend
+npm install
+npm run dev
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Development
+
+```bash
+composer run setup
+php artisan test --compact
+```
+
+PostgreSQL is the default database. Development uses `mindloom` and the test suite uses a separate `mindloom_test` database rather than SQLite. Configure the local PostgreSQL credentials in `.env`; deployed environments must provide their own secrets.
+
+`DatabaseSeeder` creates one small demo account with CTO Fundamentals, Vocabulary, and Leadership decks and representative cards.
