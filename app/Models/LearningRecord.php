@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\SchedulerVersion;
 use Carbon\CarbonInterface;
 use Database\Factories\LearningRecordFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -16,8 +17,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property float|null $difficulty_score
  * @property int $review_count
  * @property int $current_interval_minutes
+ * @property SchedulerVersion $scheduler_version
  */
-#[Fillable(['user_id', 'card_id', 'due_at', 'last_reviewed_at', 'review_count', 'current_interval_minutes', 'stability_days', 'difficulty_score'])]
+#[Fillable(['user_id', 'card_id', 'due_at', 'last_reviewed_at', 'review_count', 'current_interval_minutes', 'stability_days', 'difficulty_score', 'scheduler_version'])]
 class LearningRecord extends Model
 {
     /** @use HasFactory<LearningRecordFactory> */
@@ -25,7 +27,7 @@ class LearningRecord extends Model
 
     protected function casts(): array
     {
-        return ['due_at' => 'datetime', 'last_reviewed_at' => 'datetime', 'stability_days' => 'float', 'difficulty_score' => 'float'];
+        return ['due_at' => 'datetime', 'last_reviewed_at' => 'datetime', 'stability_days' => 'float', 'difficulty_score' => 'float', 'scheduler_version' => SchedulerVersion::class];
     }
 
     /** @return BelongsTo<User, $this> */
