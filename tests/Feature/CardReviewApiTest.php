@@ -18,8 +18,9 @@ test('recording a review updates memory data and creates immutable history', fun
     $learningRecord = LearningRecord::factory()->create(['user_id' => $user->id, 'card_id' => $card->id, 'due_at' => now(), 'current_interval_minutes' => 0]);
     $rating = Rating::query()->whereBelongsTo($card->type, 'cardType')->where('recall_quality', RecallQuality::Remembered)->firstOrFail();
     $reviewedAt = now()->startOfSecond();
+    $this->travelTo($reviewedAt);
 
-    $this->actingAs($user)->postJson("/api/v1/cards/{$card->id}/reviews", ['rating_id' => $rating->id, 'reviewed_at' => $reviewedAt->toISOString(), 'duration_ms' => 4200])
+    $this->actingAs($user)->postJson("/api/v1/cards/{$card->id}/reviews", ['rating_id' => $rating->id, 'duration_ms' => 4200])
         ->assertCreated()
         ->assertJsonPath('data.rating_id', $rating->id)
         ->assertJsonPath('data.rating.recall_quality', RecallQuality::Remembered->value)
