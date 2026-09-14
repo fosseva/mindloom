@@ -12,7 +12,10 @@ enum CardTypeName: string
     public function relationship(): string
     {
         return match ($this) {
-            self::Remember => 'rememberCard', self::Explain => 'explainCard', self::Apply => 'applyCard', self::Note => 'noteCard'
+            self::Remember => 'rememberCard',
+            self::Explain => 'explainCard',
+            self::Apply => 'applyCard',
+            self::Note => 'noteCard'
         };
     }
 
@@ -20,7 +23,10 @@ enum CardTypeName: string
     public function fields(): array
     {
         return match ($this) {
-            self::Remember => ['question', 'answer', 'hint', 'notes'], self::Explain => ['prompt', 'explanation', 'key_points', 'example'], self::Apply => ['scenario', 'question', 'solution', 'key_takeaway'], self::Note => ['title', 'content', 'author', 'source']
+            self::Remember => ['question', 'answer', 'hint', 'notes'],
+            self::Explain => ['prompt', 'explanation', 'key_points', 'example'],
+            self::Apply => ['scenario', 'question', 'solution', 'key_takeaway'],
+            self::Note => ['title', 'content', 'author', 'source']
         };
     }
 }
