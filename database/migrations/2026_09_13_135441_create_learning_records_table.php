@@ -19,7 +19,7 @@ return new class extends Migration
             $table->timestamp('last_reviewed_at')->nullable();
             $table->unsignedInteger('review_count')->default(0);
             $table->unsignedInteger('relearning_count')->default(0);
-            $table->unsignedInteger('interval_days')->default(0);
+            $table->unsignedInteger('interval_minutes')->default(0);
             $table->string('learning_state');
             $table->timestamps();
 

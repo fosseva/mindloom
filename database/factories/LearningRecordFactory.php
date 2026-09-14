@@ -14,6 +14,6 @@ class LearningRecordFactory extends Factory
     /** @return array<string,mixed> */
     public function definition(): array
     {
-        return ['user_id' => User::factory(), 'card_id' => Card::factory(), 'due_at' => now(), 'review_count' => 0, 'relearning_count' => 0, 'interval_days' => 0, 'learning_state' => LearningState::New];
+        return ['user_id' => User::factory(), 'card_id' => Card::factory(), 'due_at' => now(), 'review_count' => 0, 'relearning_count' => 0, 'interval_minutes' => 0, 'learning_state' => LearningState::New];
     }
 }

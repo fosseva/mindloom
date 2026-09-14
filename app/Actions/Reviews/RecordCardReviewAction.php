@@ -17,7 +17,7 @@ class RecordCardReviewAction
     {
         return DB::transaction(function () use ($user, $card, $rating, $reviewedAt, $durationMs): CardReview {
             $learningRecord = $card->learningRecords()->whereBelongsTo($user)->lockForUpdate()->firstOrFail();
-            $beforeInterval = $learningRecord->interval_days;
+            $beforeInterval = $learningRecord->interval_minutes;
             $beforeDueAt = $learningRecord->due_at;
             $schedule = ($this->scheduler)($learningRecord, $rating, $reviewedAt);
             $learningRecord->update($schedule);
@@ -25,8 +25,8 @@ class RecordCardReviewAction
             return $learningRecord->reviews()->create([
                 'rating' => $rating,
                 'reviewed_at' => $reviewedAt,
-                'interval_before_days' => $beforeInterval,
-                'interval_after_days' => $schedule['interval_days'],
+                'interval_before_minutes' => $beforeInterval,
+                'interval_after_minutes' => $schedule['interval_minutes'],
                 'due_at_before' => $beforeDueAt,
                 'due_at_after' => $schedule['due_at'],
                 'duration_ms' => $durationMs,

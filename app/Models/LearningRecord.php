@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /** @property LearningState $learning_state */
-#[Fillable(['user_id', 'card_id', 'due_at', 'last_reviewed_at', 'review_count', 'relearning_count', 'interval_days', 'learning_state'])]
+#[Fillable(['user_id', 'card_id', 'due_at', 'last_reviewed_at', 'review_count', 'relearning_count', 'interval_minutes', 'learning_state'])]
 class LearningRecord extends Model
 {
     /** @use HasFactory<LearningRecordFactory> */

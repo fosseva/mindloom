@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignId('learning_record_id')->constrained()->cascadeOnDelete();
             $table->unsignedTinyInteger('rating');
             $table->timestamp('reviewed_at');
-            $table->unsignedInteger('interval_before_days');
-            $table->unsignedInteger('interval_after_days');
+            $table->unsignedInteger('interval_before_minutes');
+            $table->unsignedInteger('interval_after_minutes');
             $table->timestamp('due_at_before')->nullable();
             $table->timestamp('due_at_after')->nullable();
             $table->unsignedInteger('duration_ms')->nullable();

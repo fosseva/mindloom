@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /** @property ReviewRating $rating */
-#[Fillable(['learning_record_id', 'rating', 'reviewed_at', 'interval_before_days', 'interval_after_days', 'due_at_before', 'due_at_after', 'duration_ms'])]
+#[Fillable(['learning_record_id', 'rating', 'reviewed_at', 'interval_before_minutes', 'interval_after_minutes', 'due_at_before', 'due_at_after', 'duration_ms'])]
 class CardReview extends Model
 {
     /** @use HasFactory<CardReviewFactory> */

@@ -34,18 +34,22 @@ const ratings: Record<CardType, { score: number; label: string }[]> = {
     ],
 };
 
-function formatInterval(days: number): string {
-    if (days <= 0) return '10 min';
-    if (days === 1) return '1 day';
-    return `${days} days`;
+function formatInterval(minutes: number): string {
+    if (minutes < 60) return `${minutes} min`;
+    if (minutes < 1440) {
+        const hours = Number((minutes / 60).toFixed(1));
+        return `${hours} ${hours === 1 ? 'hour' : 'hours'}`;
+    }
+    const days = Number((minutes / 1440).toFixed(1));
+    return `${days} ${days === 1 ? 'day' : 'days'}`;
 }
 
 function previewInterval(score: number, learning?: Learning): string {
-    const current = learning?.interval_days ?? 0;
-    if (score === 1) return formatInterval(0);
-    if (score === 2) return formatInterval(1);
-    if (score === 3) return formatInterval(current > 0 ? Math.max(2, current * 2) : 3);
-    return formatInterval(current > 0 ? Math.max(4, current * 3) : 7);
+    const current = learning?.interval_minutes ?? 0;
+    if (score === 1) return formatInterval(10);
+    if (score === 2) return formatInterval(1440);
+    if (score === 3) return formatInterval(current > 0 ? Math.max(2880, current * 2) : 4320);
+    return formatInterval(current > 0 ? Math.max(5760, current * 3) : 10080);
 }
 
 const ratingStyles: Record<number, { box: string; label: string }> = {
@@ -321,7 +325,7 @@ function ReviewResult({ review, done }: { review: CardReview; done: () => Promis
                 <Check size={18} />
             </span>
             <p className="mt-3 font-semibold text-ink">
-                You'll see this again in {formatInterval(review.interval_after_days)}
+                You'll see this again in {formatInterval(review.interval_after_minutes)}
             </p>
             <div className="mt-4 h-1 overflow-hidden rounded-full bg-white/70">
                 <div
