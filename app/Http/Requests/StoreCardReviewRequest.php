@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Rating;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreCardReviewRequest extends FormRequest
 {
@@ -14,6 +16,10 @@ class StoreCardReviewRequest extends FormRequest
     /** @return array<string, mixed> */
     public function rules(): array
     {
-        return ['rating' => ['required', 'integer', 'between:1,4'], 'reviewed_at' => ['sometimes', 'date'], 'duration_ms' => ['sometimes', 'nullable', 'integer', 'min:0']];
+        return [
+            'rating_id' => ['required', 'integer', Rule::exists(Rating::class, 'id')->where(fn ($query) => $query->where('card_type_id', $this->route('card')->type_id))],
+            'reviewed_at' => ['sometimes', 'date'],
+            'duration_ms' => ['sometimes', 'nullable', 'integer', 'min:0'],
+        ];
     }
 }

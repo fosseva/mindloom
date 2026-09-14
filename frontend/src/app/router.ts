@@ -1,8 +1,8 @@
-export type Screen = 'dashboard' | 'decks' | 'practice';
+export type Screen = 'dashboard' | 'decks' | 'learn';
 
 export function authenticatedScreenFromPath(): Screen {
     const path = window.location.pathname.replace(/^\//, '');
-    return path === 'decks' || path === 'practice' ? path : 'dashboard';
+    return path === 'decks' || path === 'learn' ? path : 'dashboard';
 }
 
 export function replacePath(path: '/login' | '/dashboard'): void {

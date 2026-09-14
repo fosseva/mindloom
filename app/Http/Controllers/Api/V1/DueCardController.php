@@ -14,7 +14,7 @@ class DueCardController extends Controller
         $learningRecords = $request->user()->learningRecords()
             ->whereHas('card', fn ($query) => $query->whereNull('archived_at')->whereHas('deck', fn ($deckQuery) => $deckQuery->whereNull('archived_at')))
             ->where(fn ($query) => $query->whereNull('due_at')->orWhere('due_at', '<=', now()))
-            ->with(['card.rememberCard', 'card.explainCard', 'card.applyCard', 'card.noteCard', 'card.learningRecords' => fn ($query) => $query->whereBelongsTo($request->user())])
+            ->with(['card.type.ratings', 'card.rememberCard', 'card.explainCard', 'card.applyCard', 'card.noteCard', 'card.learningRecords' => fn ($query) => $query->whereBelongsTo($request->user())])
             ->orderByRaw('due_at IS NOT NULL')
             ->orderBy('due_at')
             ->paginate();

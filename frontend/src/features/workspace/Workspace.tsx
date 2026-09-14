@@ -8,7 +8,7 @@ import { authenticatedScreenFromPath, pushScreen } from '../../app/router';
 import { ConfirmArchiveDialog } from '../../components/Modal';
 import { DashboardScreen } from '../../pages/DashboardPage';
 import { DecksScreen } from '../../pages/DecksPage';
-import { PracticeScreen } from '../../pages/PracticePage';
+import { LearnScreen } from '../../pages/LearnPage';
 import { AccountMenu } from '../auth/AccountMenu';
 import { CardForm } from '../cards/CardForm';
 import { cardHeading } from '../cards/CardDisplay';
@@ -17,7 +17,7 @@ import { DeckForm } from '../decks/DeckForm';
 const NAV_ITEMS: { key: Screen; label: string; icon: typeof Clock3 }[] = [
     { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { key: 'decks', label: 'Decks', icon: BookOpen },
-    { key: 'practice', label: 'Practice', icon: Clock3 },
+    { key: 'learn', label: 'Learn', icon: Clock3 },
 ];
 
 export function Workspace({ user, loggedOut }: { user: User; loggedOut: () => void }) {
@@ -28,8 +28,8 @@ export function Workspace({ user, loggedOut }: { user: User; loggedOut: () => vo
     const [dueCards, setDueCards] = useState<Card[]>([]);
     const [search, setSearch] = useState('');
     const [type, setType] = useState('');
-    const [practiceDeckId, setPracticeDeckId] = useState<number | null>(null);
-    const [practiceIndex, setPracticeIndex] = useState(0);
+    const [learningDeckId, setLearningDeckId] = useState<number | null>(null);
+    const [learningIndex, setLearningIndex] = useState(0);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
     const [showDeckForm, setShowDeckForm] = useState(false);
@@ -47,24 +47,24 @@ export function Workspace({ user, loggedOut }: { user: User; loggedOut: () => vo
         () => decks.find((item) => item.id === selectedDeckId),
         [decks, selectedDeckId],
     );
-    const practiceDeck = useMemo(
-        () => decks.find((item) => item.id === practiceDeckId),
-        [decks, practiceDeckId],
+    const learningDeck = useMemo(
+        () => decks.find((item) => item.id === learningDeckId),
+        [decks, learningDeckId],
     );
-    const practiceQueue = useMemo(
+    const learningQueue = useMemo(
         () =>
-            practiceDeckId ? dueCards.filter((card) => card.deck_id === practiceDeckId) : dueCards,
-        [dueCards, practiceDeckId],
+            learningDeckId ? dueCards.filter((card) => card.deck_id === learningDeckId) : dueCards,
+        [dueCards, learningDeckId],
     );
 
     const goTo = (next: Screen) => {
         setScreen(next);
         pushScreen(next);
     };
-    const startPractice = (deckId: number | null) => {
-        setPracticeDeckId(deckId);
-        setPracticeIndex(0);
-        goTo('practice');
+    const startLearning = (deckId: number | null) => {
+        setLearningDeckId(deckId);
+        setLearningIndex(0);
+        goTo('learn');
     };
 
     useEffect(() => {
@@ -112,7 +112,7 @@ export function Workspace({ user, loggedOut }: { user: User; loggedOut: () => vo
         try {
             const result = await api.due();
             setDueCards(result.data);
-            setPracticeIndex(0);
+            setLearningIndex(0);
             setError('');
         } catch (reason) {
             handleError(reason);
@@ -236,7 +236,7 @@ export function Workspace({ user, loggedOut }: { user: User; loggedOut: () => vo
                             >
                                 <Icon size={15} className="shrink-0" />
                                 <span className="hidden sm:inline">{label}</span>
-                                {key === 'practice' && dueCards.length > 0 && (
+                                {key === 'learn' && dueCards.length > 0 && (
                                     <span
                                         aria-label={`${dueCards.length} pending`}
                                         className="grid size-4 min-w-4 shrink-0 place-items-center rounded-full bg-coral px-0.5 text-[9px] leading-none font-bold text-white"
@@ -272,7 +272,7 @@ export function Workspace({ user, loggedOut }: { user: User; loggedOut: () => vo
                             setSelectedDeckId(deckId);
                             goTo('decks');
                         }}
-                        startPractice={startPractice}
+                        startLearning={startLearning}
                         onCreateDeck={() => setShowDeckForm(true)}
                     />
                 ) : screen === 'decks' ? (
@@ -289,7 +289,7 @@ export function Workspace({ user, loggedOut }: { user: User; loggedOut: () => vo
                         onCreateDeck={() => setShowDeckForm(true)}
                         onEditDeck={setEditingDeck}
                         onArchiveDeck={setArchivingDeck}
-                        onStartPractice={startPractice}
+                        onStartLearning={startLearning}
                         onNewCard={() => setShowCardForm(true)}
                         onEditCard={setEditingCard}
                         onArchiveCard={setArchivingCard}
@@ -304,12 +304,12 @@ export function Workspace({ user, loggedOut }: { user: User; loggedOut: () => vo
                         onRestoreCard={restoreCard}
                     />
                 ) : (
-                    <PracticeScreen
-                        deckName={practiceDeck?.name}
-                        cards={practiceQueue}
-                        index={practiceIndex}
-                        onAdvance={() => setPracticeIndex((current) => current + 1)}
-                        onShowAll={() => setPracticeDeckId(null)}
+                    <LearnScreen
+                        deckName={learningDeck?.name}
+                        cards={learningQueue}
+                        index={learningIndex}
+                        onAdvance={() => setLearningIndex((current) => current + 1)}
+                        onShowAll={() => setLearningDeckId(null)}
                     />
                 )}
             </main>

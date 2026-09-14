@@ -18,9 +18,9 @@ return new class extends Migration
             $table->timestamp('due_at')->nullable();
             $table->timestamp('last_reviewed_at')->nullable();
             $table->unsignedInteger('review_count')->default(0);
-            $table->unsignedInteger('relearning_count')->default(0);
-            $table->unsignedInteger('interval_minutes')->default(0);
-            $table->string('learning_state');
+            $table->unsignedInteger('current_interval_minutes')->default(0);
+            $table->decimal('stability_days', 12, 6)->nullable();
+            $table->decimal('difficulty_score', 8, 6)->nullable();
             $table->timestamps();
 
             $table->unique(['user_id', 'card_id']);

@@ -1,4 +1,4 @@
-import type { ApiResource, Card, CardReview, Deck, Page, User } from '../types';
+import type { ApiResource, Card, CardReview, CardTypeDefinition, Deck, Page, User } from '../types';
 import { config } from '../app/config';
 
 export class ApiError extends Error {
@@ -67,6 +67,7 @@ export const api = {
             `/api/v1/decks/${deckId}/cards?include=deck&sort=sort_order&filter[archived]=${archived ? 1 : 0}${type ? `&filter[type]=${type}` : ''}`,
         ),
     due: () => request<Page<Card>>('/api/v1/cards/due'),
+    cardTypes: () => request<{ data: CardTypeDefinition[] }>('/api/v1/card-types'),
     createDeck: (body: { name: string; description?: string }) =>
         request<{ data: Deck }>('/api/v1/decks', { method: 'POST', body: JSON.stringify(body) }),
     updateDeck: (
@@ -87,9 +88,9 @@ export const api = {
             method: 'PATCH',
             body: JSON.stringify(body),
         }),
-    review: (cardId: number, rating: number, durationMs?: number) =>
+    review: (cardId: number, ratingId: number, durationMs?: number) =>
         request<ApiResource<CardReview>>(`/api/v1/cards/${cardId}/reviews`, {
             method: 'POST',
-            body: JSON.stringify({ rating, duration_ms: durationMs }),
+            body: JSON.stringify({ rating_id: ratingId, duration_ms: durationMs }),
         }),
 };

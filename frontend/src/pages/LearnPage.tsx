@@ -3,7 +3,7 @@ import type { Card } from '../types';
 
 import { EmptyCards, LearningCard } from '../features/cards/CardDisplay';
 
-export function PracticeScreen({
+export function LearnScreen({
     deckName,
     cards,
     index,

@@ -13,10 +13,10 @@ class UpdateCardAction
     {
         return DB::transaction(function () use ($card, $attributes): Card {
             $card->update(Arr::only($attributes, ['sort_order', 'archived_at']));
-            $relationship = $card->type->relationship();
-            $card->{$relationship}()->update(Arr::only($attributes, $card->type->fields()));
+            $relationship = $card->type->name->relationship();
+            $card->{$relationship}()->update(Arr::only($attributes, $card->type->name->fields()));
 
-            return $card->refresh()->load([$relationship, 'learningRecords']);
+            return $card->refresh()->load(['type.ratings', $relationship, 'learningRecords']);
         });
     }
 }

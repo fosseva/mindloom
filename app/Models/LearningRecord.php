@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\LearningState;
+use Carbon\CarbonInterface;
 use Database\Factories\LearningRecordFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,8 +10,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-/** @property LearningState $learning_state */
-#[Fillable(['user_id', 'card_id', 'due_at', 'last_reviewed_at', 'review_count', 'relearning_count', 'interval_minutes', 'learning_state'])]
+/**
+ * @property CarbonInterface|null $last_reviewed_at
+ * @property float|null $stability_days
+ * @property float|null $difficulty_score
+ * @property int $review_count
+ * @property int $current_interval_minutes
+ */
+#[Fillable(['user_id', 'card_id', 'due_at', 'last_reviewed_at', 'review_count', 'current_interval_minutes', 'stability_days', 'difficulty_score'])]
 class LearningRecord extends Model
 {
     /** @use HasFactory<LearningRecordFactory> */
@@ -19,7 +25,7 @@ class LearningRecord extends Model
 
     protected function casts(): array
     {
-        return ['due_at' => 'datetime', 'last_reviewed_at' => 'datetime', 'learning_state' => LearningState::class];
+        return ['due_at' => 'datetime', 'last_reviewed_at' => 'datetime', 'stability_days' => 'float', 'difficulty_score' => 'float'];
     }
 
     /** @return BelongsTo<User, $this> */

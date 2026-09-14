@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\CardTypeName;
+use App\Models\CardType;
 use App\Models\Deck;
 use App\Models\User;
 
@@ -50,8 +52,9 @@ test('decks can be filtered included and sorted by each users preference', funct
 test('cards_count and archived_cards_count only count cards on their own side of the archive', function () {
     $user = User::factory()->create();
     $deck = Deck::factory()->for($user, 'owner')->create();
-    $active = $this->actingAs($user)->postJson("/api/v1/decks/{$deck->id}/cards", ['type' => 'remember', 'question' => 'Q1', 'answer' => 'A1'])->json('data.id');
-    $archived = $this->actingAs($user)->postJson("/api/v1/decks/{$deck->id}/cards", ['type' => 'remember', 'question' => 'Q2', 'answer' => 'A2'])->json('data.id');
+    $rememberType = CardType::query()->where('name', CardTypeName::Remember)->firstOrFail();
+    $active = $this->actingAs($user)->postJson("/api/v1/decks/{$deck->id}/cards", ['type_id' => $rememberType->id, 'question' => 'Q1', 'answer' => 'A1'])->json('data.id');
+    $archived = $this->actingAs($user)->postJson("/api/v1/decks/{$deck->id}/cards", ['type_id' => $rememberType->id, 'question' => 'Q2', 'answer' => 'A2'])->json('data.id');
     $this->actingAs($user)->patchJson("/api/v1/cards/{$archived}", ['archived_at' => now()->toISOString()])->assertOk();
 
     $this->actingAs($user)->getJson('/api/v1/decks?include=cards_count,archived_cards_count')

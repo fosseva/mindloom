@@ -1,17 +1,29 @@
 export type CardType = 'remember' | 'explain' | 'apply' | 'note';
+export type Rating = {
+    id: number;
+    card_type_id: number;
+    name: string;
+    description: string;
+    recall_quality: 1 | 2 | 3 | 4;
+};
+export type CardTypeDefinition = {
+    id: number;
+    name: CardType;
+    description: string;
+    ratings: Rating[];
+};
 export type User = { id: number; name: string; email: string };
 export type Learning = {
     due_at: string | null;
     last_reviewed_at: string | null;
     review_count: number;
-    relearning_count: number;
-    interval_minutes: number;
-    learning_state: string;
+    current_interval_minutes: number;
 };
 export type Card = {
     id: number;
     deck_id: number;
-    type: CardType;
+    type_id: number;
+    type: CardTypeDefinition;
     sort_order: number;
     archived_at: string | null;
     content: Record<string, string | null>;
@@ -32,7 +44,8 @@ export type ApiResource<T> = { data: T };
 export type CardReview = {
     id: number;
     card_id: number;
-    rating: number;
+    rating_id: number;
+    rating: Rating;
     reviewed_at: string;
     interval_before_minutes: number;
     interval_after_minutes: number;

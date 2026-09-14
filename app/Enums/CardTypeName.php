@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum CardType: string
+enum CardTypeName: string
 {
     case Remember = 'remember';
     case Explain = 'explain';

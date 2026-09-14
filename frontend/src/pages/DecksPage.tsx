@@ -26,7 +26,7 @@ export function DecksScreen({
     onCreateDeck,
     onEditDeck,
     onArchiveDeck,
-    onStartPractice,
+    onStartLearning,
     onNewCard,
     onEditCard,
     onArchiveCard,
@@ -52,7 +52,7 @@ export function DecksScreen({
     onCreateDeck: () => void;
     onEditDeck: (deck: Deck) => void;
     onArchiveDeck: (deck: Deck) => void;
-    onStartPractice: (deckId: number) => void;
+    onStartLearning: (deckId: number) => void;
     onNewCard: () => void;
     onEditCard: (card: Card) => void;
     onArchiveCard: (card: Card) => void;
@@ -207,7 +207,7 @@ export function DecksScreen({
                         {deck && deckDue > 0 && (
                             <button
                                 type="button"
-                                onClick={() => onStartPractice(deck.id)}
+                                onClick={() => onStartLearning(deck.id)}
                                 className="flex items-center gap-2 rounded-full bg-moss px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-ink"
                             >
                                 <Play size={15} /> Start now

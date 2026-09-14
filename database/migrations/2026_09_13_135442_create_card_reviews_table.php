@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('card_reviews', function (Blueprint $table) {
             $table->id();
             $table->foreignId('learning_record_id')->constrained()->cascadeOnDelete();
-            $table->unsignedTinyInteger('rating');
+            $table->foreignId('rating_id')->constrained()->restrictOnDelete();
             $table->timestamp('reviewed_at');
             $table->unsignedInteger('interval_before_minutes');
             $table->unsignedInteger('interval_after_minutes');

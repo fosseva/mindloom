@@ -12,6 +12,6 @@ class LearningRecordResource extends JsonResource
     /** @return array<string,mixed> */
     public function toArray(Request $request): array
     {
-        return ['due_at' => $this->due_at, 'last_reviewed_at' => $this->last_reviewed_at, 'review_count' => $this->review_count, 'relearning_count' => $this->relearning_count, 'interval_minutes' => $this->interval_minutes, 'learning_state' => $this->learning_state->value];
+        return ['due_at' => $this->due_at, 'last_reviewed_at' => $this->last_reviewed_at, 'review_count' => $this->review_count, 'current_interval_minutes' => $this->current_interval_minutes];
     }
 }

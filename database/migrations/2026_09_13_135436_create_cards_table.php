@@ -14,13 +14,13 @@ return new class extends Migration
         Schema::create('cards', function (Blueprint $table) {
             $table->id();
             $table->foreignId('deck_id')->constrained()->cascadeOnDelete();
-            $table->string('type');
+            $table->foreignId('type_id')->constrained('card_types')->restrictOnDelete();
             $table->unsignedInteger('sort_order')->default(0);
             $table->timestamp('archived_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index(['deck_id', 'type']);
+            $table->index(['deck_id', 'type_id']);
             $table->index(['deck_id', 'sort_order']);
         });
     }

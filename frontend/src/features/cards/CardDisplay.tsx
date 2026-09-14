@@ -1,55 +1,20 @@
 import { useEffect, useState } from 'react';
 import { Archive, ArchiveRestore, BookOpen, Check, Pencil } from 'lucide-react';
 import { api } from '../../services/apiClient';
-import type { Card, CardReview, CardType, Learning } from '../../types';
+import type { Card, CardReview, Learning } from '../../types';
 import { cardTypeLabels } from './cardConfig';
-const learningStateInfo: Record<string, { label: string; dot: string; text: string }> = {
+const learningStateInfo = {
     new: { label: 'Not started', dot: 'bg-ink/30', text: 'text-ink/45' },
-    learning: { label: 'Still learning', dot: 'bg-amber', text: 'text-amber' },
-    reviewing: { label: 'On track', dot: 'bg-moss', text: 'text-moss' },
-    relearning: { label: 'Needs relearning', dot: 'bg-coral', text: 'text-coral' },
-};
-const ratings: Record<CardType, { score: number; label: string }[]> = {
-    remember: [
-        { score: 1, label: 'Missed' },
-        { score: 2, label: 'Struggled' },
-        { score: 3, label: 'Got it' },
-        { score: 4, label: 'Instantly' },
-    ],
-    explain: [
-        { score: 1, label: "Couldn't explain" },
-        { score: 2, label: 'Partially' },
-        { score: 3, label: 'Clearly' },
-        { score: 4, label: 'Confidently' },
-    ],
-    apply: [
-        { score: 1, label: 'Missed it' },
-        { score: 2, label: 'Needed guidance' },
-        { score: 3, label: 'Applied it' },
-        { score: 4, label: 'Solved confidently' },
-    ],
-    note: [
-        { score: 1, label: 'Revisit' },
-        { score: 4, label: 'Internalized' },
-    ],
+    due: { label: 'Due for review', dot: 'bg-coral', text: 'text-coral' },
+    scheduled: { label: 'Scheduled', dot: 'bg-moss', text: 'text-moss' },
 };
 
-function formatInterval(minutes: number): string {
-    if (minutes < 60) return `${minutes} min`;
-    if (minutes < 1440) {
-        const hours = Number((minutes / 60).toFixed(1));
-        return `${hours} ${hours === 1 ? 'hour' : 'hours'}`;
-    }
-    const days = Number((minutes / 1440).toFixed(1));
-    return `${days} ${days === 1 ? 'day' : 'days'}`;
-}
+export function formatReviewInterval(minutes: number): string {
+    const totalMinutes = Math.max(1, Math.round(minutes));
+    if (totalMinutes < 1440) return `${totalMinutes} min`;
 
-function previewInterval(score: number, learning?: Learning): string {
-    const current = learning?.interval_minutes ?? 0;
-    if (score === 1) return formatInterval(10);
-    if (score === 2) return formatInterval(1440);
-    if (score === 3) return formatInterval(current > 0 ? Math.max(2880, current * 2) : 4320);
-    return formatInterval(current > 0 ? Math.max(5760, current * 3) : 10080);
+    const approximateDays = Math.max(1, Math.round(totalMinutes / 1440));
+    return `about ${approximateDays} ${approximateDays === 1 ? 'day' : 'days'}`;
 }
 
 const ratingStyles: Record<number, { box: string; label: string }> = {
@@ -74,8 +39,13 @@ export function cardHeading(card: Card): string {
     );
 }
 
-export function LearningStateBadge({ state }: { state?: string }) {
-    const info = learningStateInfo[state ?? 'new'] ?? learningStateInfo.new;
+export function ReviewStatusBadge({ learning }: { learning?: Learning }) {
+    const state = !learning || learning.review_count === 0
+        ? 'new'
+        : learning.due_at && new Date(learning.due_at) <= new Date()
+          ? 'due'
+          : 'scheduled';
+    const info = learningStateInfo[state];
     return (
         <span className="flex items-center gap-1.5 text-xs font-medium">
             <span className={`size-1.5 shrink-0 rounded-full ${info.dot}`} />
@@ -102,9 +72,9 @@ export function CardListItem({
             <div className="min-w-0">
                 <div className="mb-2 flex items-center gap-2">
                     <span className="rounded-full bg-sage px-3 py-1 text-xs font-bold text-moss">
-                        {cardTypeLabels[card.type]}
+                        {cardTypeLabels[card.type.name]}
                     </span>
-                    <LearningStateBadge state={card.learning?.learning_state} />
+                    <ReviewStatusBadge learning={card.learning} />
                 </div>
                 <p className={`truncate font-semibold ${onRestore ? 'text-ink/50' : ''}`}>
                     {cardHeading(card)}
@@ -147,7 +117,7 @@ export function CardListItem({
 }
 
 export function LearningCard({ card, reviewed }: { card: Card; reviewed: () => Promise<void> }) {
-    const [revealed, setRevealed] = useState(card.type === 'note');
+    const [revealed, setRevealed] = useState(card.type.name === 'note');
     const [result, setResult] = useState<CardReview | null>(null);
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState('');
@@ -157,9 +127,9 @@ export function LearningCard({ card, reviewed }: { card: Card; reviewed: () => P
         <article className="rounded-3xl border border-ink/10 bg-white/85 p-6 shadow-sm">
             <div className="flex items-center justify-between gap-3">
                 <span className="rounded-full bg-sage px-3 py-1 text-xs font-bold text-moss">
-                    {cardTypeLabels[card.type]}
+                    {cardTypeLabels[card.type.name]}
                 </span>
-                <LearningStateBadge state={card.learning?.learning_state} />
+                <ReviewStatusBadge learning={card.learning} />
             </div>
             <CardPrompt card={card} heading={heading} />
             {!revealed && (
@@ -168,9 +138,9 @@ export function LearningCard({ card, reviewed }: { card: Card; reviewed: () => P
                     onClick={() => setRevealed(true)}
                     className="mt-6 w-full rounded-xl border border-moss/25 bg-sage/45 px-4 py-3 text-sm font-semibold text-moss hover:bg-sage"
                 >
-                    {card.type === 'remember'
+                    {card.type.name === 'remember'
                         ? 'Reveal answer'
-                        : card.type === 'explain'
+                        : card.type.name === 'explain'
                           ? 'Show guidance'
                           : 'Show solution'}
                 </button>
@@ -183,12 +153,12 @@ export function LearningCard({ card, reviewed }: { card: Card; reviewed: () => P
                             How did that go?
                         </p>
                         <div
-                            className={`mt-3 grid gap-2 ${ratings[card.type].length === 2 ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-4'}`}
+                            className={`mt-3 grid gap-2 ${card.type.ratings.length === 2 ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-4'}`}
                         >
-                            {ratings[card.type].map(({ score, label }) => (
+                            {card.type.ratings.map((rating) => (
                                 <button
                                     type="button"
-                                    key={score}
+                                    key={rating.id}
                                     disabled={busy}
                                     onClick={async () => {
                                         setBusy(true);
@@ -198,7 +168,7 @@ export function LearningCard({ card, reviewed }: { card: Card; reviewed: () => P
                                                 (
                                                     await api.review(
                                                         card.id,
-                                                        score,
+                                                        rating.id,
                                                         Date.now() - startedAt,
                                                     )
                                                 ).data,
@@ -213,15 +183,13 @@ export function LearningCard({ card, reviewed }: { card: Card; reviewed: () => P
                                             setBusy(false);
                                         }
                                     }}
-                                    className={`flex min-h-19 flex-col items-center justify-center gap-1 rounded-xl border px-2 py-2.5 text-center transition disabled:opacity-50 ${ratingStyles[score].box}`}
+                                    title={rating.description}
+                                    className={`flex min-h-19 flex-col items-center justify-center gap-1 rounded-xl border px-2 py-2.5 text-center transition disabled:opacity-50 ${ratingStyles[rating.recall_quality].box}`}
                                 >
                                     <span
-                                        className={`text-xs leading-tight font-semibold ${ratingStyles[score].label}`}
+                                        className={`text-xs leading-tight font-semibold ${ratingStyles[rating.recall_quality].label}`}
                                     >
-                                        {label}
-                                    </span>
-                                    <span className="text-[11px] leading-tight font-medium text-ink/45">
-                                        in {previewInterval(score, card.learning)}
+                                        {rating.name}
                                     </span>
                                 </button>
                             ))}
@@ -242,11 +210,11 @@ export function LearningCard({ card, reviewed }: { card: Card; reviewed: () => P
 function CardPrompt({ card, heading }: { card: Card; heading: string }) {
     return (
         <div className="mt-5">
-            {card.type === 'apply' && (
+            {card.type.name === 'apply' && (
                 <p className="mb-3 text-sm leading-6 text-ink/60">{card.content.scenario}</p>
             )}
             <h2 className="text-xl font-semibold leading-snug">{heading}</h2>
-            {card.type === 'remember' && card.content.hint && (
+            {card.type.name === 'remember' && card.content.hint && (
                 <details className="mt-4 text-sm text-ink/55">
                     <summary className="cursor-pointer font-semibold text-moss">
                         Need a hint?
@@ -254,7 +222,7 @@ function CardPrompt({ card, heading }: { card: Card; heading: string }) {
                     <p className="mt-2">{card.content.hint}</p>
                 </details>
             )}
-            {card.type === 'note' && (
+            {card.type.name === 'note' && (
                 <p className="mt-4 whitespace-pre-wrap text-base leading-7 text-ink/70">
                     {card.content.content}
                 </p>
@@ -265,18 +233,18 @@ function CardPrompt({ card, heading }: { card: Card; heading: string }) {
 
 function CardGuidance({ card }: { card: Card }) {
     const sections =
-        card.type === 'remember'
+        card.type.name === 'remember'
             ? [
                   ['Answer', card.content.answer],
                   ['Notes', card.content.notes],
               ]
-            : card.type === 'explain'
+            : card.type.name === 'explain'
               ? [
                     ['Expected explanation', card.content.explanation],
                     ['Key points', card.content.key_points],
                     ['Example', card.content.example],
                 ]
-              : card.type === 'apply'
+              : card.type.name === 'apply'
                 ? [
                       ['Suggested solution', card.content.solution],
                       ['Key takeaway', card.content.key_takeaway],
@@ -325,7 +293,7 @@ function ReviewResult({ review, done }: { review: CardReview; done: () => Promis
                 <Check size={18} />
             </span>
             <p className="mt-3 font-semibold text-ink">
-                You'll see this again in {formatInterval(review.interval_after_minutes)}
+                You'll see this again in {formatReviewInterval(review.interval_after_minutes)}
             </p>
             <div className="mt-4 h-1 overflow-hidden rounded-full bg-white/70">
                 <div

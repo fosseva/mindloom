@@ -7,15 +7,6 @@ export const cardTypeLabels: Record<CardType, string> = {
     note: 'Note',
 };
 
-export const cardTypeDescriptions: Record<CardType, string> = {
-    remember:
-        'Best for a single fact, definition, or detail with one clear right answer — like a name, date, or figure you want to recall instantly.',
-    explain:
-        "Best for an idea you need to put into your own words — good for concepts you'd otherwise just memorize without truly understanding.",
-    apply: 'Best for a real situation where you have to decide or act — practices judgment, not just recall.',
-    note: "Best for a quote or reflection you simply want to revisit over time — there's no right answer to test yourself on.",
-};
-
 export const cardFields: Record<
     CardType,
     { key: string; label: string; required?: boolean; hint: string; placeholder: string }[]

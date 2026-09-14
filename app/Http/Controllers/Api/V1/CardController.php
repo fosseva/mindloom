@@ -51,8 +51,8 @@ class CardController extends Controller
 
     private function query(Builder $query, int $userId): QueryBuilder
     {
-        return QueryBuilder::for($query->with(['rememberCard', 'explainCard', 'applyCard', 'noteCard', 'learningRecords' => fn ($query) => $query->where('user_id', $userId)]))
-            ->allowedFilters(AllowedFilter::exact('type'), AllowedFilter::callback('archived', fn (Builder $query, mixed $value) => $value ? $query->whereNotNull('archived_at') : $query->whereNull('archived_at')))
+        return QueryBuilder::for($query->with(['type.ratings', 'rememberCard', 'explainCard', 'applyCard', 'noteCard', 'learningRecords' => fn ($query) => $query->where('user_id', $userId)]))
+            ->allowedFilters(AllowedFilter::callback('type', fn (Builder $query, mixed $value) => $query->whereHas('type', fn (Builder $typeQuery) => $typeQuery->where('name', $value))), AllowedFilter::callback('archived', fn (Builder $query, mixed $value) => $value ? $query->whereNotNull('archived_at') : $query->whereNull('archived_at')))
             ->allowedSorts('sort_order', 'created_at')
             ->allowedIncludes('deck');
     }

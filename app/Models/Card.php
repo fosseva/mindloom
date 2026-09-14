@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\CardType;
 use Database\Factories\CardFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,8 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-/** @property CardType $type */
-#[Fillable(['deck_id', 'type', 'sort_order', 'archived_at'])]
+#[Fillable(['deck_id', 'type_id', 'sort_order', 'archived_at'])]
 class Card extends Model
 {
     /** @use HasFactory<CardFactory> */
@@ -21,13 +19,19 @@ class Card extends Model
 
     protected function casts(): array
     {
-        return ['type' => CardType::class, 'archived_at' => 'datetime'];
+        return ['archived_at' => 'datetime'];
     }
 
     /** @return BelongsTo<Deck, $this> */
     public function deck(): BelongsTo
     {
         return $this->belongsTo(Deck::class);
+    }
+
+    /** @return BelongsTo<CardType, $this> */
+    public function type(): BelongsTo
+    {
+        return $this->belongsTo(CardType::class, 'type_id');
     }
 
     /** @return HasOne<RememberCard, $this> */

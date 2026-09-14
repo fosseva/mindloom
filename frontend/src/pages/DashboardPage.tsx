@@ -6,14 +6,14 @@ export function DashboardScreen({
     decks,
     dueCards,
     goToDeck,
-    startPractice,
+    startLearning,
     onCreateDeck,
 }: {
     user: User;
     decks: Deck[];
     dueCards: Card[];
     goToDeck: (deckId: number) => void;
-    startPractice: (deckId: number | null) => void;
+    startLearning: (deckId: number | null) => void;
     onCreateDeck: () => void;
 }) {
     const firstName = user.name.trim().split(/\s+/)[0] ?? user.name;
@@ -53,10 +53,10 @@ export function DashboardScreen({
                 {dueCards.length > 0 && (
                     <button
                         type="button"
-                        onClick={() => startPractice(null)}
+                        onClick={() => startLearning(null)}
                         className="shrink-0 rounded-full bg-moss px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-ink"
                     >
-                        Start practice session
+                        Start learning
                     </button>
                 )}
             </div>
@@ -110,7 +110,7 @@ export function DashboardScreen({
                                     {due > 0 && (
                                         <button
                                             type="button"
-                                            onClick={() => startPractice(item.id)}
+                                            onClick={() => startLearning(item.id)}
                                             className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-moss px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-ink"
                                         >
                                             <Play size={15} /> Start now

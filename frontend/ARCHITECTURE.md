@@ -6,7 +6,7 @@ The frontend is an independent React and TypeScript SPA. Laravel serves the JSON
 
 - \`src/app\`: application composition, URL navigation, and environment-backed configuration.
 - \`src/pages\`: route-level screens. Pages compose features and present page-specific layout.
-- \`src/features\`: business-capability code. Authentication, cards, decks, practice, and workspace orchestration belong here with their feature-specific state and UI.
+- \`src/features\`: business-capability code. Authentication, cards, decks, learning, and workspace orchestration belong here with their feature-specific state and UI.
 - \`src/components\`: domain-neutral UI primitives only.
 - \`src/services\`: infrastructure boundaries. \`apiClient.ts\` is the only module that knows Laravel URLs, cookies, CSRF headers, and response transport.
 - \`src/types.ts\`: API contract types shared by multiple features.

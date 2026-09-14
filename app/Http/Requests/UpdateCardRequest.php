@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\CardType;
+use App\Enums\CardTypeName;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateCardRequest extends FormRequest
@@ -16,10 +16,10 @@ class UpdateCardRequest extends FormRequest
     public function rules(): array
     {
         $rules = ['sort_order' => ['sometimes', 'integer', 'min:0'], 'archived_at' => ['sometimes', 'nullable', 'date']];
-        foreach ($this->route('card')->type->fields() as $field) {
+        foreach ($this->route('card')->type->name->fields() as $field) {
             $rules[$field] = ['sometimes', 'nullable', 'string'];
         }
-        foreach ($this->requiredFields($this->route('card')->type) as $field) {
+        foreach ($this->requiredFields($this->route('card')->type->name) as $field) {
             $rules[$field] = ['sometimes', 'required', 'string'];
         }
 
@@ -27,10 +27,10 @@ class UpdateCardRequest extends FormRequest
     }
 
     /** @return list<string> */
-    private function requiredFields(CardType $type): array
+    private function requiredFields(CardTypeName $type): array
     {
         return match ($type) {
-            CardType::Remember => ['question', 'answer'], CardType::Explain => ['prompt', 'explanation'], CardType::Apply => ['scenario', 'question', 'solution'], CardType::Note => ['content']
+            CardTypeName::Remember => ['question', 'answer'], CardTypeName::Explain => ['prompt', 'explanation'], CardTypeName::Apply => ['scenario', 'question', 'solution'], CardTypeName::Note => ['content']
         };
     }
 }

@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '../../services/apiClient';
-import type { Card, CardType, Deck } from '../../types';
+import type { Card, CardType, CardTypeDefinition, Deck } from '../../types';
 
 import { Field } from '../../components/Field';
 import { Modal } from '../../components/Modal';
-import { cardFields, cardTypeDescriptions, cardTypeLabels } from './cardConfig';
+import { cardFields, cardTypeLabels } from './cardConfig';
 
 export function CardForm({
     deck,
@@ -17,22 +17,27 @@ export function CardForm({
     close: () => void;
     saved: () => Promise<void>;
 }) {
-    const [type, setType] = useState<CardType>(existing?.type ?? 'remember');
+    const [type, setType] = useState<CardType>(existing?.type.name ?? 'remember');
+    const [cardTypes, setCardTypes] = useState<CardTypeDefinition[]>([]);
     const [values, setValues] = useState<Record<string, string>>(() =>
         existing
             ? Object.fromEntries(
-                  cardFields[existing.type].map((field) => [
+                  cardFields[existing.type.name].map((field) => [
                       field.key,
                       existing.content[field.key] ?? '',
                   ]),
               )
             : {},
     );
+    useEffect(() => {
+        void api.cardTypes().then((response) => setCardTypes(response.data));
+    }, []);
+    const selectedType = cardTypes.find((cardType) => cardType.name === type);
     return (
         <Modal
             title={
                 existing
-                    ? `Edit ${cardTypeLabels[existing.type].toLowerCase()} card`
+                    ? `Edit ${cardTypeLabels[existing.type.name].toLowerCase()} card`
                     : `Add to ${deck.name}`
             }
             subtitle={
@@ -50,7 +55,8 @@ export function CardForm({
                     if (existing) {
                         await api.updateCard(existing.id, values);
                     } else {
-                        await api.createCard(deck.id, { type, ...values });
+                        if (!selectedType) return;
+                        await api.createCard(deck.id, { type_id: selectedType.id, ...values });
                     }
                     await saved();
                     close();
@@ -67,14 +73,14 @@ export function CardForm({
                             }}
                             className="rounded-xl border border-ink/15 bg-white p-2.5 font-normal"
                         >
-                            {Object.entries(cardTypeLabels).map(([value, label]) => (
-                                <option key={value} value={value}>
-                                    {label}
+                            {cardTypes.map((cardType) => (
+                                <option key={cardType.id} value={cardType.name}>
+                                    {cardTypeLabels[cardType.name]}
                                 </option>
                             ))}
                         </select>
                         <span className="text-xs font-normal text-ink/50">
-                            {cardTypeDescriptions[type]}
+                            {selectedType?.description ?? 'Loading card types…'}
                         </span>
                     </label>
                 )}
@@ -92,7 +98,7 @@ export function CardForm({
                         multiline
                     />
                 ))}
-                <button className="mt-1 rounded-xl bg-moss p-2.5 text-sm font-semibold text-white hover:bg-ink">
+                <button disabled={!existing && !selectedType} className="mt-1 rounded-xl bg-moss p-2.5 text-sm font-semibold text-white hover:bg-ink disabled:opacity-50">
                     {existing
                         ? 'Save changes'
                         : `Create ${cardTypeLabels[type].toLowerCase()} card`}
