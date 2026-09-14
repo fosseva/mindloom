@@ -10,7 +10,7 @@ use DateTimeInterface;
 
 class ScheduleNextReviewAction
 {
-    /** @return array{learning_state: LearningState, due_at: CarbonImmutable, interval_days: int, review_count: int, lapse_count: int, last_reviewed_at: CarbonImmutable} */
+    /** @return array{learning_state: LearningState, due_at: CarbonImmutable, interval_days: int, review_count: int, relearning_count: int, last_reviewed_at: CarbonImmutable} */
     public function __invoke(LearningRecord $learningRecord, ReviewRating $rating, DateTimeInterface $reviewedAt): array
     {
         $reviewedAt = CarbonImmutable::instance($reviewedAt);
@@ -30,7 +30,7 @@ class ScheduleNextReviewAction
             'due_at' => $dueAt,
             'interval_days' => $intervalDays,
             'review_count' => $learningRecord->review_count + 1,
-            'lapse_count' => $learningRecord->lapse_count + (($wasLearned && $rating->value <= 2) ? 1 : 0),
+            'relearning_count' => $learningRecord->relearning_count + (($wasLearned && $rating->value <= 2) ? 1 : 0),
             'last_reviewed_at' => $reviewedAt,
         ];
     }

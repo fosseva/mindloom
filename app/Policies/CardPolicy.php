@@ -10,12 +10,12 @@ class CardPolicy
 {
     public function create(User $user, Deck $deck): bool
     {
-        return $deck->user_id === $user->id;
+        return $deck->owner_id === $user->id;
     }
 
     public function view(User $user, Card $card): bool
     {
-        return $card->deck->user_id === $user->id;
+        return $card->deck->owner_id === $user->id;
     }
 
     public function update(User $user, Card $card): bool

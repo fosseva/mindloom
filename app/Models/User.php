@@ -33,9 +33,9 @@ class User extends Authenticatable
     }
 
     /** @return HasMany<Deck, $this> */
-    public function decks(): HasMany
+    public function ownedDecks(): HasMany
     {
-        return $this->hasMany(Deck::class);
+        return $this->hasMany(Deck::class, 'owner_id');
     }
 
     /** @return HasMany<LearningRecord, $this> */

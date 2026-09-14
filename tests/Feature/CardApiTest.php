@@ -17,7 +17,7 @@ dataset('card payloads', [
 
 test('a user can create every supported card type with subtype content and progress', function (CardType $type, array $content, string $table) {
     $user = User::factory()->create();
-    $deck = Deck::factory()->for($user)->create();
+    $deck = Deck::factory()->for($user, 'owner')->create();
 
     $response = $this->actingAs($user)->postJson("/api/v1/decks/{$deck->id}/cards", ['type' => $type->value, ...$content]);
 
@@ -30,7 +30,7 @@ test('a user can create every supported card type with subtype content and progr
 
 test('card type specific required content is validated', function (string $type, array $payload, array $errors) {
     $user = User::factory()->create();
-    $deck = Deck::factory()->for($user)->create();
+    $deck = Deck::factory()->for($user, 'owner')->create();
 
     $this->actingAs($user)->postJson("/api/v1/decks/{$deck->id}/cards", ['type' => $type, ...$payload])
         ->assertUnprocessable()
@@ -44,7 +44,7 @@ test('card type specific required content is validated', function (string $type,
 
 test('a user can update archive and delete their card', function () {
     $user = User::factory()->create();
-    $deck = Deck::factory()->for($user)->create();
+    $deck = Deck::factory()->for($user, 'owner')->create();
     $card = Card::factory()->for($deck)->create(['type' => CardType::Remember]);
     RememberCard::factory()->create(['card_id' => $card->id, 'question' => 'Old question']);
 
@@ -61,8 +61,8 @@ test('a user can update archive and delete their card', function () {
 test('due cards only contain accessible cards that are currently due', function () {
     $user = User::factory()->create();
     $otherUser = User::factory()->create();
-    $deck = Deck::factory()->for($user)->create();
-    $otherDeck = Deck::factory()->for($otherUser)->create();
+    $deck = Deck::factory()->for($user, 'owner')->create();
+    $otherDeck = Deck::factory()->for($otherUser, 'owner')->create();
     $dueCard = Card::factory()->for($deck)->create();
     $futureCard = Card::factory()->for($deck)->create();
     $otherCard = Card::factory()->for($otherDeck)->create();
@@ -81,7 +81,7 @@ test('due cards only contain accessible cards that are currently due', function 
 
 test('cards can be filtered by type and include their deck', function () {
     $user = User::factory()->create();
-    $deck = Deck::factory()->for($user)->create();
+    $deck = Deck::factory()->for($user, 'owner')->create();
     $remember = Card::factory()->for($deck)->create(['type' => CardType::Remember]);
     RememberCard::factory()->create(['card_id' => $remember->id]);
     $note = Card::factory()->for($deck)->create(['type' => CardType::Note]);

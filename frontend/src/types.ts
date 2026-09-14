@@ -4,10 +4,9 @@ export type Learning = {
     due_at: string | null;
     last_reviewed_at: string | null;
     review_count: number;
-    lapse_count: number;
+    relearning_count: number;
     interval_days: number;
     learning_state: string;
-    paused_at: string | null;
 };
 export type Card = {
     id: number;

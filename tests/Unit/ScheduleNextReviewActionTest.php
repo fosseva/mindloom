@@ -7,7 +7,7 @@ use App\Models\LearningRecord;
 use Carbon\CarbonImmutable;
 
 test('successful recall schedules a future review', function () {
-    $learningRecord = new LearningRecord(['review_count' => 0, 'lapse_count' => 0, 'interval_days' => 0, 'learning_state' => LearningState::New]);
+    $learningRecord = new LearningRecord(['review_count' => 0, 'relearning_count' => 0, 'interval_days' => 0, 'learning_state' => LearningState::New]);
     $reviewedAt = CarbonImmutable::parse('2026-09-13 10:00:00');
 
     $schedule = (new ScheduleNextReviewAction)($learningRecord, ReviewRating::Four, $reviewedAt);
@@ -19,7 +19,7 @@ test('successful recall schedules a future review', function () {
 });
 
 test('a missed learned card enters relearning and counts a lapse', function () {
-    $learningRecord = new LearningRecord(['review_count' => 4, 'lapse_count' => 1, 'interval_days' => 12, 'learning_state' => LearningState::Reviewing]);
+    $learningRecord = new LearningRecord(['review_count' => 4, 'relearning_count' => 1, 'interval_days' => 12, 'learning_state' => LearningState::Reviewing]);
     $reviewedAt = CarbonImmutable::parse('2026-09-13 10:00:00');
 
     $schedule = (new ScheduleNextReviewAction)($learningRecord, ReviewRating::One, $reviewedAt);
@@ -27,5 +27,5 @@ test('a missed learned card enters relearning and counts a lapse', function () {
     expect($schedule['learning_state'])->toBe(LearningState::Relearning)
         ->and($schedule['interval_days'])->toBe(0)
         ->and($schedule['due_at']->equalTo($reviewedAt->addMinutes(10)))->toBeTrue()
-        ->and($schedule['lapse_count'])->toBe(2);
+        ->and($schedule['relearning_count'])->toBe(2);
 });

@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('decks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('owner_id')->constrained('users')->cascadeOnDelete();
             $table->string('name');
             $table->text('description')->nullable();
             $table->timestamp('archived_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index('user_id');
+            $table->index('owner_id');
         });
     }
 

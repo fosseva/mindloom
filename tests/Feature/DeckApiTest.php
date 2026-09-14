@@ -12,13 +12,13 @@ test('an authenticated user can create a deck', function () {
     ])->assertCreated()
         ->assertJsonPath('data.name', 'CTO Fundamentals');
 
-    $this->assertDatabaseHas('decks', ['user_id' => $user->id, 'name' => 'CTO Fundamentals']);
+    $this->assertDatabaseHas('decks', ['owner_id' => $user->id, 'name' => 'CTO Fundamentals']);
 });
 
 test('a user cannot modify another users deck', function () {
     $owner = User::factory()->create();
     $otherUser = User::factory()->create();
-    $deck = Deck::factory()->for($owner)->create();
+    $deck = Deck::factory()->for($owner, 'owner')->create();
 
     $this->actingAs($otherUser)->patchJson("/api/v1/decks/{$deck->id}", ['name' => 'Taken over'])
         ->assertForbidden();
@@ -28,11 +28,11 @@ test('a user cannot modify another users deck', function () {
 
 test('deck names do not have to be unique', function () {
     $user = User::factory()->create();
-    Deck::factory()->for($user)->create(['name' => 'Leadership']);
+    Deck::factory()->for($user, 'owner')->create(['name' => 'Leadership']);
 
     $this->actingAs($user)->postJson('/api/v1/decks', ['name' => 'Leadership'])->assertCreated();
 
-    expect($user->decks()->where('name', 'Leadership')->count())->toBe(2);
+    expect($user->ownedDecks()->where('name', 'Leadership')->count())->toBe(2);
 });
 
 test('decks can be filtered included and sorted by each users preference', function () {
@@ -49,7 +49,7 @@ test('decks can be filtered included and sorted by each users preference', funct
 
 test('cards_count and archived_cards_count only count cards on their own side of the archive', function () {
     $user = User::factory()->create();
-    $deck = Deck::factory()->for($user)->create();
+    $deck = Deck::factory()->for($user, 'owner')->create();
     $active = $this->actingAs($user)->postJson("/api/v1/decks/{$deck->id}/cards", ['type' => 'remember', 'question' => 'Q1', 'answer' => 'A1'])->json('data.id');
     $archived = $this->actingAs($user)->postJson("/api/v1/decks/{$deck->id}/cards", ['type' => 'remember', 'question' => 'Q2', 'answer' => 'A2'])->json('data.id');
     $this->actingAs($user)->patchJson("/api/v1/cards/{$archived}", ['archived_at' => now()->toISOString()])->assertOk();

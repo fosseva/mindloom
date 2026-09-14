@@ -9,7 +9,7 @@ use App\Models\User;
 
 test('recording a review updates progress and creates immutable history data', function () {
     $user = User::factory()->create();
-    $deck = Deck::factory()->for($user)->create();
+    $deck = Deck::factory()->for($user, 'owner')->create();
     $card = Card::factory()->for($deck)->create(['type' => CardType::Remember]);
     RememberCard::factory()->create(['card_id' => $card->id]);
     $learningRecord = LearningRecord::factory()->create(['user_id' => $user->id, 'card_id' => $card->id, 'due_at' => now(), 'interval_days' => 0]);
@@ -30,7 +30,7 @@ test('recording a review updates progress and creates immutable history data', f
 test('a user cannot review another users card', function () {
     $owner = User::factory()->create();
     $otherUser = User::factory()->create();
-    $deck = Deck::factory()->for($owner)->create();
+    $deck = Deck::factory()->for($owner, 'owner')->create();
     $card = Card::factory()->for($deck)->create();
     RememberCard::factory()->create(['card_id' => $card->id]);
     LearningRecord::factory()->create(['user_id' => $owner->id, 'card_id' => $card->id]);

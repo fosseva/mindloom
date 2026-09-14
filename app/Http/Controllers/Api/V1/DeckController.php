@@ -26,7 +26,7 @@ class DeckController extends Controller
 {
     public function index(Request $request): AnonymousResourceCollection
     {
-        $query = $this->forUser($request->user())->whereBelongsTo($request->user());
+        $query = $this->forUser($request->user())->whereBelongsTo($request->user(), 'owner');
         $decks = $this->query($query)->defaultSort('user_sort_order')->paginate($request->integer('per_page') ?: 15);
 
         return DeckResource::collection($decks);

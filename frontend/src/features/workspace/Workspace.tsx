@@ -77,13 +77,15 @@ export function Workspace({ user, loggedOut }: { user: User; loggedOut: () => vo
         if (reason instanceof ApiError && reason.status === 401) return loggedOut();
         setError(reason instanceof Error ? reason.message : 'Something went wrong.');
     };
-    const fetchDecks = async () => {
-        const result = await api.decks(search);
+    const fetchDecks = async (deckSearch = search, preferredDeckId?: number) => {
+        const result = await api.decks(deckSearch);
         setDecks(result.data);
         setSelectedDeckId((current) =>
-            result.data.some((item) => item.id === current)
-                ? current
-                : (result.data[0]?.id ?? null),
+            preferredDeckId && result.data.some((item) => item.id === preferredDeckId)
+                ? preferredDeckId
+                : result.data.some((item) => item.id === current)
+                  ? current
+                  : (result.data[0]?.id ?? null),
         );
     };
     const loadDecks = async () => {
@@ -125,6 +127,16 @@ export function Workspace({ user, loggedOut }: { user: User; loggedOut: () => vo
         }
         await Promise.all([loadDeckCards(), loadDueCards()]);
         if (showArchivedCards) void loadArchivedDeckCards();
+    };
+    const selectCreatedDeck = async (deck: Deck) => {
+        setSearch('');
+
+        try {
+            await fetchDecks('', deck.id);
+            setError('');
+        } catch (reason) {
+            handleError(reason);
+        }
     };
     const loadArchivedDecksTotal = async () => {
         try {
@@ -301,12 +313,14 @@ export function Workspace({ user, loggedOut }: { user: User; loggedOut: () => vo
                     />
                 )}
             </main>
-            {showDeckForm && <DeckForm close={() => setShowDeckForm(false)} saved={loadDecks} />}
+            {showDeckForm && (
+                <DeckForm close={() => setShowDeckForm(false)} saved={selectCreatedDeck} />
+            )}
             {editingDeck && (
                 <DeckForm
                     existing={editingDeck}
                     close={() => setEditingDeck(null)}
-                    saved={loadDecks}
+                    saved={() => loadDecks()}
                 />
             )}
             {showCardForm && selectedDeck && (

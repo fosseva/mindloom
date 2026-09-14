@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['user_id', 'name', 'description', 'archived_at'])]
+#[Fillable(['owner_id', 'name', 'description', 'archived_at'])]
 class Deck extends Model
 {
     /** @use HasFactory<DeckFactory> */
@@ -22,9 +22,9 @@ class Deck extends Model
     }
 
     /** @return BelongsTo<User, $this> */
-    public function user(): BelongsTo
+    public function owner(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'owner_id');
     }
 
     /** @return HasMany<Card, $this> */

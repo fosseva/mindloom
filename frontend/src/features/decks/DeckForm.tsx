@@ -12,7 +12,7 @@ export function DeckForm({
 }: {
     existing?: Deck;
     close: () => void;
-    saved: () => Promise<void>;
+    saved: (deck: Deck) => Promise<void>;
 }) {
     const [name, setName] = useState(existing?.name ?? '');
     const [description, setDescription] = useState(existing?.description ?? '');
@@ -30,15 +30,16 @@ export function DeckForm({
                 className="grid gap-3.5"
                 onSubmit={async (event) => {
                     event.preventDefault();
-                    if (existing) {
-                        await api.updateDeck(existing.id, {
-                            name,
-                            description: description || null,
-                        });
-                    } else {
-                        await api.createDeck({ name, description: description || undefined });
-                    }
-                    await saved();
+                    const result = existing
+                        ? await api.updateDeck(existing.id, {
+                              name,
+                              description: description || null,
+                          })
+                        : await api.createDeck({
+                              name,
+                              description: description || undefined,
+                          });
+                    await saved(result.data);
                     close();
                 }}
             >

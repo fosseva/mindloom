@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /** @property LearningState $learning_state */
-#[Fillable(['user_id', 'card_id', 'due_at', 'last_reviewed_at', 'review_count', 'lapse_count', 'interval_days', 'learning_state', 'paused_at'])]
+#[Fillable(['user_id', 'card_id', 'due_at', 'last_reviewed_at', 'review_count', 'relearning_count', 'interval_days', 'learning_state'])]
 class LearningRecord extends Model
 {
     /** @use HasFactory<LearningRecordFactory> */
@@ -19,7 +19,7 @@ class LearningRecord extends Model
 
     protected function casts(): array
     {
-        return ['due_at' => 'datetime', 'last_reviewed_at' => 'datetime', 'learning_state' => LearningState::class, 'paused_at' => 'datetime'];
+        return ['due_at' => 'datetime', 'last_reviewed_at' => 'datetime', 'learning_state' => LearningState::class];
     }
 
     /** @return BelongsTo<User, $this> */
