@@ -18,6 +18,7 @@ class NoteCard extends Model
 
     public $incrementing = false;
 
+    /** @return BelongsTo<Card, $this> */
     public function card(): BelongsTo
     {
         return $this->belongsTo(Card::class);

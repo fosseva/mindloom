@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
+use Illuminate\Auth\RequestGuard;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,7 +30,10 @@ class SessionController extends Controller
     public function destroy(Request $request): JsonResponse
     {
         Auth::guard('web')->logout();
-        Auth::guard('sanctum')->forgetUser();
+        $sanctumGuard = Auth::guard('sanctum');
+        if ($sanctumGuard instanceof RequestGuard) {
+            $sanctumGuard->forgetUser();
+        }
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

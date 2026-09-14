@@ -2,9 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Deck;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin Deck */
 class DeckResource extends JsonResource
 {
     /** @return array<string, mixed> */

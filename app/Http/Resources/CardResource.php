@@ -2,9 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Card;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin Card */
 class CardResource extends JsonResource
 {
     /** @return array<string, mixed> */

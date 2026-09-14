@@ -32,16 +32,19 @@ class User extends Authenticatable
         ];
     }
 
+    /** @return HasMany<Deck, $this> */
     public function decks(): HasMany
     {
         return $this->hasMany(Deck::class);
     }
 
+    /** @return HasMany<LearningRecord, $this> */
     public function learningRecords(): HasMany
     {
         return $this->hasMany(LearningRecord::class);
     }
 
+    /** @return HasMany<UserDeckPreference, $this> */
     public function deckPreferences(): HasMany
     {
         return $this->hasMany(UserDeckPreference::class);

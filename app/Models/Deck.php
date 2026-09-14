@@ -21,16 +21,19 @@ class Deck extends Model
         return ['archived_at' => 'datetime'];
     }
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /** @return HasMany<Card, $this> */
     public function cards(): HasMany
     {
         return $this->hasMany(Card::class);
     }
 
+    /** @return HasMany<UserDeckPreference, $this> */
     public function userPreferences(): HasMany
     {
         return $this->hasMany(UserDeckPreference::class);

@@ -2,9 +2,11 @@
 
 namespace App\Http\Resources;
 
+use App\Models\LearningRecord;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/** @mixin LearningRecord */
 class LearningRecordResource extends JsonResource
 {
     /** @return array<string,mixed> */

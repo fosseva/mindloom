@@ -14,11 +14,13 @@ class UserDeckPreference extends Model
     /** @use HasFactory<UserDeckPreferenceFactory> */
     use HasFactory;
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /** @return BelongsTo<Deck, $this> */
     public function deck(): BelongsTo
     {
         return $this->belongsTo(Deck::class);

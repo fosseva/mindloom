@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/** @property LearningState $learning_state */
 #[Fillable(['user_id', 'card_id', 'due_at', 'last_reviewed_at', 'review_count', 'lapse_count', 'interval_days', 'learning_state', 'paused_at'])]
 class LearningRecord extends Model
 {
@@ -21,16 +22,19 @@ class LearningRecord extends Model
         return ['due_at' => 'datetime', 'last_reviewed_at' => 'datetime', 'learning_state' => LearningState::class, 'paused_at' => 'datetime'];
     }
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /** @return BelongsTo<Card, $this> */
     public function card(): BelongsTo
     {
         return $this->belongsTo(Card::class);
     }
 
+    /** @return HasMany<CardReview, $this> */
     public function reviews(): HasMany
     {
         return $this->hasMany(CardReview::class);
