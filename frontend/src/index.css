@@ -1,0 +1,66 @@
+@import 'tailwindcss';
+@theme {
+    --color-ink: #17231f;
+    --color-paper: #f4f1e8;
+    --color-moss: #315c49;
+    --color-sage: #dce7dd;
+    --color-coral: #d96c4c;
+    --color-amber: #c9922f;
+    --font-sans: 'Avenir Next', 'Segoe UI', sans-serif;
+}
+body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    background: var(--color-paper);
+    color: var(--color-ink);
+}
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+button:not(:disabled),
+select {
+    cursor: pointer;
+}
+button:disabled {
+    cursor: not-allowed;
+}
+@keyframes confetti-fall {
+    0% {
+        transform: translate(0, -10vh) rotate(0deg) scale(0.6);
+        opacity: 0;
+    }
+    8% {
+        opacity: 1;
+        scale: 1;
+    }
+    100% {
+        transform: translate(var(--confetti-drift, 0px), 105vh) rotate(var(--confetti-spin, 540deg));
+        opacity: 0;
+    }
+}
+.animate-confetti-fall {
+    animation-name: confetti-fall;
+    animation-timing-function: cubic-bezier(0.15, 0.6, 0.4, 1);
+    animation-fill-mode: forwards;
+}
+@keyframes confetti-pop {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    40% {
+        transform: scale(1.08);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+.animate-confetti-pop {
+    animation: confetti-pop 0.5s ease-out both;
+}

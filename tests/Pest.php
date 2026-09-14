@@ -1,5 +1,6 @@
 <?php
 
+use Database\Seeders\CardTypeSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -15,7 +16,8 @@ use Tests\TestCase;
 */
 
 pest()->extend(TestCase::class)
- // ->use(RefreshDatabase::class)
+    ->use(RefreshDatabase::class)
+    ->beforeEach(fn () => $this->seed(CardTypeSeeder::class))
     ->in('Feature');
 
 /*
