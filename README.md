@@ -14,7 +14,7 @@ Mindloom is an API-first personal learning system for deliberate recall, articul
 
 ## API
 
-Version 1 routes live under `/api/v1` and use Laravel Sanctum's stateful cookie authentication for the first-party SPA. The frontend first requests `/sanctum/csrf-cookie`, then establishes a session through `POST /api/v1/session`.
+Version 1 routes live under `/api/v1` and use Laravel Sanctum's stateful cookie authentication for the first-party SPA. The frontend first requests `/sanctum/csrf-cookie`, then signs in through `POST /api/v1/login`. The authenticated user is available from `GET /api/v1/user`, and `DELETE /api/v1/logout` ends the session.
 
 | Method | Endpoint | Purpose |
 | --- | --- | --- |

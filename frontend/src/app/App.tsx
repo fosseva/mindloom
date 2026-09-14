@@ -14,7 +14,7 @@ export function App() {
     const [justSignedOut, setJustSignedOut] = useState(false);
 
     useEffect(() => {
-        api.session()
+        api.user()
             .then(({ data }) => {
                 setAuth({ status: 'authenticated', user: data });
                 replacePath('/dashboard');

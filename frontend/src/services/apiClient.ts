@@ -48,14 +48,14 @@ const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
     return response.status === 204 ? (undefined as T) : response.json();
 };
 export const api = {
-    session: () => request<ApiResource<User>>('/api/v1/session'),
+    user: () => request<ApiResource<User>>('/api/v1/user'),
     login: (email: string, password: string) =>
-        request<ApiResource<User>>('/api/v1/session', {
+        request<ApiResource<User>>('/api/v1/login', {
             method: 'POST',
             body: JSON.stringify({ email, password }),
         }),
     logout: async () => {
-        await request<void>('/api/v1/session', { method: 'DELETE' });
+        await request<void>('/api/v1/logout', { method: 'DELETE' });
         csrfReady = false;
     },
     decks: (search = '', archived = false, perPage?: number) =>

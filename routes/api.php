@@ -9,11 +9,11 @@ use App\Http\Controllers\Api\V1\SessionController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function (): void {
-    Route::post('session', [SessionController::class, 'store'])->middleware('guest')->name('session.store');
+    Route::post('login', [SessionController::class, 'store'])->middleware('guest')->name('login');
 
     Route::middleware('auth:sanctum')->group(function (): void {
-        Route::get('session', [SessionController::class, 'show'])->name('session.show');
-        Route::delete('session', [SessionController::class, 'destroy'])->name('session.destroy');
+        Route::get('user', [SessionController::class, 'show'])->name('user.show');
+        Route::delete('logout', [SessionController::class, 'destroy'])->name('logout');
         Route::get('cards/due', DueCardController::class)->name('cards.due');
         Route::get('card-types', [CardTypeController::class, 'index'])->name('card-types.index');
         Route::apiResource('decks', DeckController::class);

@@ -30,10 +30,13 @@ class SessionController extends Controller
     public function destroy(Request $request): JsonResponse
     {
         Auth::guard('web')->logout();
+
         $sanctumGuard = Auth::guard('sanctum');
+
         if ($sanctumGuard instanceof RequestGuard) {
             $sanctumGuard->forgetUser();
         }
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
