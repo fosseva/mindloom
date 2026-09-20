@@ -64,3 +64,34 @@ it('selects a newly created deck', async () => {
         expect(screen.getByRole('heading', { name: 'New deck' })).toBeInTheDocument(),
     );
 });
+
+it('filters decks without replacing the workspace with a loading screen', async () => {
+    const user = userEvent.setup();
+    const deck: Deck = {
+        id: 1,
+        name: 'World Geography',
+        description: null,
+        sort_order: 0,
+        archived_at: null,
+    };
+    const decksSpy = vi
+        .spyOn(api, 'decks')
+        .mockImplementation(async (_search, archived) => page(archived ? [] : [deck]));
+    vi.spyOn(api, 'cards').mockResolvedValue(page([]));
+    vi.spyOn(api, 'due').mockResolvedValue(page([]));
+    window.history.replaceState({}, '', '/decks');
+
+    render(
+        <Workspace
+            user={{ id: 1, name: 'Ada Lovelace', email: 'ada@example.com' }}
+            loggedOut={vi.fn()}
+        />,
+    );
+    await screen.findByRole('heading', { name: 'World Geography' });
+
+    await user.type(screen.getByPlaceholderText('Filter decks'), 'world');
+
+    expect(screen.getByRole('heading', { name: 'World Geography' })).toBeInTheDocument();
+    expect(screen.queryByText('Loading your learning space…')).not.toBeInTheDocument();
+    await waitFor(() => expect(decksSpy).toHaveBeenCalledWith('world'));
+});

@@ -23,7 +23,7 @@ export function Modal({
     }, [close]);
     return (
         <div
-            className="fixed inset-0 z-10 grid place-items-center bg-ink/40 p-4"
+            className="fixed inset-0 z-30 grid items-end bg-ink/40 sm:place-items-center sm:p-4"
             onMouseDown={close}
         >
             <div
@@ -31,7 +31,7 @@ export function Modal({
                 aria-modal="true"
                 aria-label={title}
                 onMouseDown={(event) => event.stopPropagation()}
-                className={`max-h-[85vh] w-full overflow-y-auto rounded-2xl bg-paper p-5 shadow-2xl ${size === 'md' ? 'max-w-md' : 'max-w-sm'}`}
+                className={`max-h-[92dvh] w-full overflow-y-auto rounded-t-3xl bg-paper p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl sm:max-h-[85vh] sm:rounded-2xl sm:p-5 ${size === 'md' ? 'sm:max-w-md' : 'sm:max-w-sm'}`}
             >
                 <div className="flex items-start justify-between gap-3">
                     <div>

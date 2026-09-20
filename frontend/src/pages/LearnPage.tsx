@@ -53,7 +53,7 @@ export function LearnScreen({
                 </button>
             )}
             {!finished && (
-                <div className="mt-3 mb-5 h-1 overflow-hidden rounded-full bg-sage/60">
+                <div className="mt-2 mb-3 h-1 overflow-hidden rounded-full bg-sage/60 sm:mt-3 sm:mb-5">
                     <div
                         className="h-full rounded-full bg-moss transition-all"
                         style={{ width: `${progress}%` }}

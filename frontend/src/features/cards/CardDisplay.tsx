@@ -68,16 +68,18 @@ export function CardListItem({
 }) {
     return (
         <div
-            className={`flex items-center justify-between gap-4 rounded-2xl border border-ink/10 p-5 shadow-sm ${onRestore ? 'bg-paper/60' : 'bg-white/85'}`}
+            className={`flex items-center justify-between gap-2.5 rounded-2xl border border-ink/10 p-3.5 shadow-sm sm:gap-4 sm:p-5 ${onRestore ? 'bg-paper/60' : 'bg-white/85'}`}
         >
             <div className="min-w-0">
-                <div className="mb-2 flex items-center gap-2">
-                    <span className="rounded-full bg-sage px-3 py-1 text-xs font-bold text-moss">
+                <div className="mb-1.5 flex flex-wrap items-center gap-1.5 sm:mb-2 sm:gap-2">
+                    <span className="rounded-full bg-sage px-2.5 py-0.5 text-[11px] font-bold text-moss sm:px-3 sm:py-1 sm:text-xs">
                         {cardTypeLabels[card.type.name]}
                     </span>
                     <ReviewStatusBadge learningRecord={card.learning_record} />
                 </div>
-                <p className={`truncate font-semibold ${onRestore ? 'text-ink/50' : ''}`}>
+                <p
+                    className={`font-semibold break-words sm:truncate ${onRestore ? 'text-ink/50' : ''}`}
+                >
                     {cardHeading(card)}
                 </p>
             </div>
@@ -98,7 +100,7 @@ export function CardListItem({
                         onClick={onEdit}
                         aria-label={`Edit card: ${cardHeading(card)}`}
                         title="Edit card"
-                        className="shrink-0 rounded-full p-2.5 text-ink/45 hover:bg-sage hover:text-ink"
+                        className="shrink-0 rounded-full p-2 text-ink/45 hover:bg-sage hover:text-ink sm:p-2.5"
                     >
                         <Pencil size={16} />
                     </button>
@@ -107,7 +109,7 @@ export function CardListItem({
                         onClick={onArchive}
                         aria-label={`Archive card: ${cardHeading(card)}`}
                         title="Archive card"
-                        className="shrink-0 rounded-full p-2.5 text-ink/45 hover:bg-sage hover:text-coral"
+                        className="shrink-0 rounded-full p-2 text-ink/45 hover:bg-sage hover:text-coral sm:p-2.5"
                     >
                         <Archive size={16} />
                     </button>
@@ -125,7 +127,7 @@ export function LearningCard({ card, reviewed }: { card: Card; reviewed: () => P
     const [startedAt] = useState(Date.now());
     const heading = cardHeading(card);
     return (
-        <article className="rounded-3xl border border-ink/10 bg-white/85 p-6 shadow-sm">
+        <article className="rounded-2xl border border-ink/10 bg-white/85 p-4 shadow-sm sm:rounded-3xl sm:p-6">
             <div className="flex items-center justify-between gap-3">
                 <span className="rounded-full bg-sage px-3 py-1 text-xs font-bold text-moss">
                     {cardTypeLabels[card.type.name]}
@@ -137,7 +139,7 @@ export function LearningCard({ card, reviewed }: { card: Card; reviewed: () => P
                 <button
                     type="button"
                     onClick={() => setRevealed(true)}
-                    className="mt-6 w-full rounded-xl border border-moss/25 bg-sage/45 px-4 py-3 text-sm font-semibold text-moss hover:bg-sage"
+                    className="mt-4 w-full rounded-xl border border-moss/25 bg-sage/45 px-4 py-2.5 text-sm font-semibold text-moss hover:bg-sage sm:mt-6 sm:py-3"
                 >
                     {card.type.name === 'Remember'
                         ? 'Reveal answer'
@@ -149,7 +151,7 @@ export function LearningCard({ card, reviewed }: { card: Card; reviewed: () => P
             {revealed && !result && (
                 <>
                     <CardGuidance card={card} />
-                    <div className="sticky bottom-0 -mx-6 -mb-6 mt-6 rounded-b-3xl border-t border-ink/10 bg-white/95 px-6 pt-4 pb-6 backdrop-blur">
+                    <div className="sticky bottom-16 -mx-4 -mb-4 mt-4 rounded-b-2xl border-t border-ink/10 bg-white/95 px-4 pt-3 pb-4 backdrop-blur sm:bottom-0 sm:-mx-6 sm:-mb-6 sm:mt-6 sm:rounded-b-3xl sm:px-6 sm:pt-4 sm:pb-6">
                         <p className="text-xs font-bold uppercase tracking-wider text-ink/40">
                             How did that go?
                         </p>
@@ -185,7 +187,7 @@ export function LearningCard({ card, reviewed }: { card: Card; reviewed: () => P
                                         }
                                     }}
                                     title={rating.description}
-                                    className={`flex min-h-19 flex-col items-center justify-center gap-1 rounded-xl border px-2 py-2.5 text-center transition disabled:opacity-50 ${ratingStyles[rating.recall_quality].box}`}
+                                    className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl border px-2 py-2 text-center transition disabled:opacity-50 sm:min-h-19 sm:py-2.5 ${ratingStyles[rating.recall_quality].box}`}
                                 >
                                     <span
                                         className={`text-xs leading-tight font-semibold ${ratingStyles[rating.recall_quality].label}`}
@@ -210,11 +212,11 @@ export function LearningCard({ card, reviewed }: { card: Card; reviewed: () => P
 
 function CardPrompt({ card, heading }: { card: Card; heading: string }) {
     return (
-        <div className="mt-5">
+        <div className="mt-4 sm:mt-5">
             {card.type.name === 'Apply' && (
                 <p className="mb-3 text-sm leading-6 text-ink/60">{card.content.scenario}</p>
             )}
-            <h2 className="text-xl font-semibold leading-snug">{heading}</h2>
+            <h2 className="text-lg font-semibold leading-snug sm:text-xl">{heading}</h2>
             {card.type.name === 'Remember' && card.content.hint && (
                 <details className="mt-4 text-sm text-ink/55">
                     <summary className="cursor-pointer font-semibold text-moss">
@@ -259,7 +261,7 @@ function CardGuidance({ card }: { card: Card }) {
     const visibleSections = sections.filter(([, value]) => value);
     if (visibleSections.length === 0) return null;
     return (
-        <div className="mt-5 grid gap-4 rounded-2xl bg-paper/80 p-4">
+        <div className="mt-4 grid gap-3 rounded-2xl bg-paper/80 p-3.5 sm:mt-5 sm:gap-4 sm:p-4">
             {visibleSections.map(([label, value]) => (
                 <div key={label}>
                     <p className="text-xs font-bold uppercase tracking-wider text-moss">{label}</p>
@@ -308,7 +310,7 @@ function ReviewResult({ review, done }: { review: CardReview; done: () => Promis
 
 export function EmptyCards({ due, celebrate }: { due: boolean; celebrate?: boolean }) {
     return (
-        <div className="mt-7 rounded-3xl border border-dashed border-ink/20 p-12 text-center">
+        <div className="mt-4 rounded-2xl border border-dashed border-ink/20 p-7 text-center sm:mt-7 sm:rounded-3xl sm:p-12">
             {due ? (
                 <span
                     className={`mx-auto grid size-14 place-items-center rounded-full bg-moss/10 text-moss ${celebrate ? 'animate-confetti-pop' : ''}`}

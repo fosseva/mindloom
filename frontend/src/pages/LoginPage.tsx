@@ -23,7 +23,7 @@ export function LoginPage({
     const [error, setError] = useState('');
     const [busy, setBusy] = useState(false);
     return (
-        <main className="grid min-h-screen bg-paper lg:grid-cols-2">
+        <main className="grid min-h-dvh bg-paper lg:grid-cols-2">
             <section className="hidden flex-col justify-center gap-10 bg-moss px-14 py-12 text-white lg:flex">
                 <div className="flex items-center gap-3">
                     <span className="grid size-12 place-items-center rounded-2xl bg-white/15">
@@ -51,12 +51,12 @@ export function LoginPage({
                     ))}
                 </div>
             </section>
-            <section className="grid place-items-center p-5">
-                <div className="w-full max-w-md rounded-4xl border border-ink/10 bg-white/85 p-8 shadow-xl backdrop-blur sm:p-10 lg:border-none lg:bg-transparent lg:p-0 lg:shadow-none lg:backdrop-blur-none">
+            <section className="grid place-items-center p-3 sm:p-5">
+                <div className="w-full max-w-md rounded-3xl border border-ink/10 bg-white/85 p-5 shadow-xl backdrop-blur sm:rounded-4xl sm:p-10 lg:border-none lg:bg-transparent lg:p-0 lg:shadow-none lg:backdrop-blur-none">
                     <span className="grid size-12 place-items-center rounded-2xl bg-moss text-white lg:hidden">
                         <Brain />
                     </span>
-                    <h1 className="mt-6 text-3xl font-semibold tracking-tight lg:mt-0">
+                    <h1 className="mt-4 text-2xl font-semibold tracking-tight sm:mt-6 sm:text-3xl lg:mt-0">
                         Welcome back
                     </h1>
                     <p className="mt-2 text-sm leading-6 text-ink/55">
@@ -71,7 +71,7 @@ export function LoginPage({
                         </p>
                     )}
                     <form
-                        className="mt-7 grid gap-5"
+                        className="mt-5 grid gap-4 sm:mt-7 sm:gap-5"
                         onSubmit={async (event) => {
                             event.preventDefault();
                             setBusy(true);

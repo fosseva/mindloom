@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { BookOpen, Brain, Clock3, LayoutDashboard } from 'lucide-react';
 import { ApiError, api } from '../../services/apiClient';
 import type { Card, Deck, User } from '../../types';
@@ -23,6 +23,7 @@ const NAV_ITEMS: { key: Screen; label: string; icon: typeof Clock3 }[] = [
 export function Workspace({ user, loggedOut }: { user: User; loggedOut: () => void }) {
     const [screen, setScreen] = useState<Screen>(authenticatedScreenFromPath());
     const [decks, setDecks] = useState<Deck[]>([]);
+    const [deckSearchResults, setDeckSearchResults] = useState<Deck[]>([]);
     const [selectedDeckId, setSelectedDeckId] = useState<number | null>(null);
     const [deckCards, setDeckCards] = useState<Card[]>([]);
     const [dueCards, setDueCards] = useState<Card[]>([]);
@@ -43,6 +44,8 @@ export function Workspace({ user, loggedOut }: { user: User; loggedOut: () => vo
     const [showArchivedCards, setShowArchivedCards] = useState(false);
     const [archivingDeck, setArchivingDeck] = useState<Deck | null>(null);
     const [archivingCard, setArchivingCard] = useState<Card | null>(null);
+    const hasLoadedDecks = useRef(false);
+    const deckSearchRequestId = useRef(0);
     const selectedDeck = useMemo(
         () => decks.find((item) => item.id === selectedDeckId),
         [decks, selectedDeckId],
@@ -88,15 +91,34 @@ export function Workspace({ user, loggedOut }: { user: User; loggedOut: () => vo
                   : (result.data[0]?.id ?? null),
         );
     };
-    const loadDecks = async () => {
+    const loadDecks = async (deckSearch = search) => {
+        const requestId = ++deckSearchRequestId.current;
+
         try {
-            setLoading(true);
-            await fetchDecks();
+            if (!hasLoadedDecks.current) setLoading(true);
+
+            const result = await api.decks(deckSearch);
+            if (requestId !== deckSearchRequestId.current) return;
+
+            if (deckSearch) {
+                setDeckSearchResults(result.data);
+            } else {
+                setDecks(result.data);
+                setSelectedDeckId((current) =>
+                    result.data.some((item) => item.id === current)
+                        ? current
+                        : (result.data[0]?.id ?? null),
+                );
+            }
             setError('');
         } catch (reason) {
+            if (requestId !== deckSearchRequestId.current) return;
             handleError(reason);
         } finally {
-            setLoading(false);
+            if (requestId === deckSearchRequestId.current) {
+                hasLoadedDecks.current = true;
+                setLoading(false);
+            }
         }
     };
     const loadDeckCards = async () => {
@@ -138,9 +160,9 @@ export function Workspace({ user, loggedOut }: { user: User; loggedOut: () => vo
             handleError(reason);
         }
     };
-    const loadArchivedDecksTotal = async () => {
+    const loadArchivedDecksTotal = async (deckSearch = search) => {
         try {
-            const result = await api.decks(search, true, 1);
+            const result = await api.decks(deckSearch, true, 1);
             setArchivedDecksTotal(result.meta.total);
         } catch (reason) {
             handleError(reason);
@@ -196,8 +218,15 @@ export function Workspace({ user, loggedOut }: { user: User; loggedOut: () => vo
         if (showArchivedCards) void loadArchivedDeckCards();
     };
     useEffect(() => {
-        void loadDecks();
-        void loadArchivedDecksTotal();
+        const timeout = window.setTimeout(
+            () => {
+                void loadDecks(search);
+                void loadArchivedDecksTotal(search);
+            },
+            search ? 250 : 0,
+        );
+
+        return () => window.clearTimeout(timeout);
     }, [search]);
     useEffect(() => {
         if (screen === 'decks') void loadDeckCards();
@@ -211,21 +240,23 @@ export function Workspace({ user, loggedOut }: { user: User; loggedOut: () => vo
     }, [selectedDeckId]);
 
     return (
-        <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_#fffdf5,_#f4f1e8_45%,_#e4ece2)]">
-            <header className="border-b border-ink/10 bg-paper/80 backdrop-blur">
-                <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-3 sm:gap-4 sm:px-5 sm:py-4">
+        <div className="min-h-dvh bg-[radial-gradient(circle_at_top_left,_#fffdf5,_#f4f1e8_45%,_#e4ece2)]">
+            <header className="sticky top-0 z-10 border-b border-ink/10 bg-paper/90 backdrop-blur md:static md:bg-paper/80">
+                <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-3 py-2 sm:px-5 sm:py-4">
                     <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-                        <span className="grid size-9 shrink-0 place-items-center rounded-2xl bg-moss text-white sm:size-10">
+                        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-moss text-white sm:size-10 sm:rounded-2xl">
                             <Brain size={20} />
                         </span>
-                        <div className="hidden min-w-0 sm:block">
-                            <p className="truncate text-lg font-semibold tracking-tight">
+                        <div className="min-w-0">
+                            <p className="truncate text-base font-semibold tracking-tight sm:text-lg">
                                 Mindloom
                             </p>
-                            <p className="text-xs text-ink/55">Working knowledge, practiced</p>
+                            <p className="hidden text-xs text-ink/55 sm:block">
+                                Working knowledge, practiced
+                            </p>
                         </div>
                     </div>
-                    <nav className="flex items-center gap-1 rounded-full bg-white/70 p-1">
+                    <nav className="hidden items-center gap-1 rounded-full bg-white/70 p-1 md:flex">
                         {NAV_ITEMS.map(({ key, label, icon: Icon }) => (
                             <button
                                 key={key}
@@ -252,7 +283,7 @@ export function Workspace({ user, loggedOut }: { user: User; loggedOut: () => vo
                     </div>
                 </div>
             </header>
-            <main className="mx-auto max-w-7xl px-4 py-6 sm:px-5 sm:py-8">
+            <main className="mx-auto max-w-7xl px-3 pt-4 pb-24 sm:px-5 sm:pt-7 md:py-8">
                 {error && (
                     <p
                         role="alert"
@@ -277,10 +308,18 @@ export function Workspace({ user, loggedOut }: { user: User; loggedOut: () => vo
                     />
                 ) : screen === 'decks' ? (
                     <DecksScreen
-                        decks={decks}
+                        decks={search ? deckSearchResults : decks}
+                        selectedDeck={selectedDeck}
                         dueCards={dueCards}
                         selectedDeckId={selectedDeckId}
-                        onSelectDeck={setSelectedDeckId}
+                        onSelectDeck={(deck) => {
+                            setDecks((current) =>
+                                current.some((item) => item.id === deck.id)
+                                    ? current
+                                    : [...current, deck],
+                            );
+                            setSelectedDeckId(deck.id);
+                        }}
                         search={search}
                         setSearch={setSearch}
                         type={type}
@@ -313,6 +352,33 @@ export function Workspace({ user, loggedOut }: { user: User; loggedOut: () => vo
                     />
                 )}
             </main>
+            <nav
+                aria-label="Primary navigation"
+                className="fixed inset-x-0 bottom-0 z-20 border-t border-ink/10 bg-white/95 px-2 pt-1.5 pb-[max(.375rem,env(safe-area-inset-bottom))] shadow-[0_-8px_30px_rgba(23,35,31,.08)] backdrop-blur md:hidden"
+            >
+                <div className="mx-auto grid max-w-md grid-cols-3 gap-1">
+                    {NAV_ITEMS.map(({ key, label, icon: Icon }) => (
+                        <button
+                            key={key}
+                            type="button"
+                            onClick={() => goTo(key)}
+                            aria-current={screen === key ? 'page' : undefined}
+                            className={`relative flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl px-2 text-[11px] font-semibold transition ${screen === key ? 'bg-sage text-moss' : 'text-ink/50 active:bg-sage/60'}`}
+                        >
+                            <Icon size={19} strokeWidth={screen === key ? 2.5 : 2} />
+                            <span>{label}</span>
+                            {key === 'learn' && dueCards.length > 0 && (
+                                <span
+                                    aria-label={`${dueCards.length} pending`}
+                                    className="absolute top-1.5 left-[calc(50%+7px)] grid size-4 min-w-4 place-items-center rounded-full bg-coral px-0.5 text-[9px] leading-none font-bold text-white ring-2 ring-white"
+                                >
+                                    {dueCards.length > 9 ? '9+' : dueCards.length}
+                                </span>
+                            )}
+                        </button>
+                    ))}
+                </div>
+            </nav>
             {showDeckForm && (
                 <DeckForm close={() => setShowDeckForm(false)} saved={selectCreatedDeck} />
             )}
