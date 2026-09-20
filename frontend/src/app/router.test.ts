@@ -9,6 +9,12 @@ it('recognizes learn as an authenticated screen', () => {
     expect(authenticatedScreenFromPath()).toBe('learn');
 });
 
+it('recognizes profile as an authenticated screen', () => {
+    window.history.replaceState({}, '', '/profile');
+
+    expect(authenticatedScreenFromPath()).toBe('profile');
+});
+
 it('navigates the learning screen to the learn path', () => {
     pushScreen('learn');
 

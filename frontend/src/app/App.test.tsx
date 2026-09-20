@@ -29,6 +29,18 @@ it('opens the workspace when the session contains an authenticated user', async 
     expect(window.location.pathname).toBe('/dashboard');
 });
 
+it('preserves a direct link to the profile for an authenticated user', async () => {
+    vi.spyOn(api, 'user').mockResolvedValue({
+        data: { id: 1, name: 'Ada Lovelace', email: 'ada@example.com' },
+    });
+    window.history.replaceState({}, '', '/profile');
+
+    render(<App />);
+
+    expect(await screen.findByText('Workspace for Ada Lovelace')).toBeInTheDocument();
+    expect(window.location.pathname).toBe('/profile');
+});
+
 it('opens the login page when the session endpoint returns 401', async () => {
     vi.spyOn(api, 'user').mockRejectedValue(new ApiError('Unauthenticated.', 401));
 

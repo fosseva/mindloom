@@ -9,6 +9,7 @@ import { ConfirmArchiveDialog } from '../../components/Modal';
 import { DashboardScreen } from '../../pages/DashboardPage';
 import { DecksScreen } from '../../pages/DecksPage';
 import { LearnScreen } from '../../pages/LearnPage';
+import { ProfileScreen } from '../../pages/ProfilePage';
 import { AccountMenu } from '../auth/AccountMenu';
 import { CardForm } from '../cards/CardForm';
 import { cardHeading } from '../cards/CardDisplay';
@@ -20,7 +21,15 @@ const NAV_ITEMS: { key: Screen; label: string; icon: typeof Clock3 }[] = [
     { key: 'learn', label: 'Learn', icon: Clock3 },
 ];
 
-export function Workspace({ user, loggedOut }: { user: User; loggedOut: () => void }) {
+export function Workspace({
+    user,
+    loggedOut,
+    userUpdated,
+}: {
+    user: User;
+    loggedOut: () => void;
+    userUpdated: (user: User) => void;
+}) {
     const [screen, setScreen] = useState<Screen>(authenticatedScreenFromPath());
     const [decks, setDecks] = useState<Deck[]>([]);
     const [deckSearchResults, setDeckSearchResults] = useState<Deck[]>([]);
@@ -279,7 +288,11 @@ export function Workspace({ user, loggedOut }: { user: User; loggedOut: () => vo
                         ))}
                     </nav>
                     <div className="flex shrink-0 items-center gap-2">
-                        <AccountMenu user={user} loggedOut={loggedOut} />
+                        <AccountMenu
+                            user={user}
+                            loggedOut={loggedOut}
+                            openProfile={() => goTo('profile')}
+                        />
                     </div>
                 </div>
             </header>
@@ -342,7 +355,7 @@ export function Workspace({ user, loggedOut }: { user: User; loggedOut: () => vo
                         onToggleArchivedCards={toggleArchivedCards}
                         onRestoreCard={restoreCard}
                     />
-                ) : (
+                ) : screen === 'learn' ? (
                     <LearnScreen
                         deckName={learningDeck?.name}
                         cards={learningQueue}
@@ -350,6 +363,8 @@ export function Workspace({ user, loggedOut }: { user: User; loggedOut: () => vo
                         onAdvance={() => setLearningIndex((current) => current + 1)}
                         onShowAll={() => setLearningDeckId(null)}
                     />
+                ) : (
+                    <ProfileScreen user={user} userUpdated={userUpdated} />
                 )}
             </main>
             <nav

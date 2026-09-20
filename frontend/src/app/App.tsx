@@ -22,7 +22,11 @@ export function App() {
         try {
             const { data } = await api.user();
             setAuth({ status: 'authenticated', user: data });
-            replacePath('/dashboard');
+            if (
+                !['/dashboard', '/decks', '/learn', '/profile'].includes(window.location.pathname)
+            ) {
+                replacePath('/dashboard');
+            }
         } catch (reason) {
             if (reason instanceof ApiError && reason.status === 401) {
                 setAuth({ status: 'guest' });
@@ -65,6 +69,7 @@ export function App() {
     return (
         <Workspace
             user={auth.user}
+            userUpdated={(user) => setAuth({ status: 'authenticated', user })}
             loggedOut={() => {
                 setJustSignedOut(true);
                 setAuth({ status: 'guest' });

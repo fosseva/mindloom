@@ -1,9 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
-import { ChevronDown, LogOut } from 'lucide-react';
+import { ChevronDown, LogOut, UserRound } from 'lucide-react';
 import { api } from '../../services/apiClient';
 import type { User } from '../../types';
 
-export function AccountMenu({ user, loggedOut }: { user: User; loggedOut: () => void }) {
+export function AccountMenu({
+    user,
+    loggedOut,
+    openProfile,
+}: {
+    user: User;
+    loggedOut: () => void;
+    openProfile: () => void;
+}) {
     const [open, setOpen] = useState(false);
     const [busy, setBusy] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
@@ -62,6 +70,18 @@ export function AccountMenu({ user, loggedOut }: { user: User; loggedOut: () => 
                         <p className="truncate text-sm font-semibold">{user.name}</p>
                         <p className="truncate text-xs text-ink/50">{user.email}</p>
                     </div>
+                    <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                            setOpen(false);
+                            openProfile();
+                        }}
+                        className="flex w-full items-center gap-2.5 border-b border-ink/10 px-4 py-3 text-left text-sm font-semibold text-ink/70 transition hover:bg-sage/60 hover:text-moss"
+                    >
+                        <UserRound size={16} />
+                        Profile settings
+                    </button>
                     <button
                         type="button"
                         role="menuitem"

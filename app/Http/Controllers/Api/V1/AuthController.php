@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
-class SessionController extends Controller
+class AuthController extends Controller
 {
     public function store(LoginRequest $request): JsonResponse
     {
@@ -19,11 +19,6 @@ class SessionController extends Controller
         }
         $request->session()->regenerate();
 
-        return response()->json(['data' => $request->user()->only(['id', 'name', 'email'])]);
-    }
-
-    public function show(Request $request): JsonResponse
-    {
         return response()->json(['data' => $request->user()->only(['id', 'name', 'email'])]);
     }
 

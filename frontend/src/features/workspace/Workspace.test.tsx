@@ -48,6 +48,7 @@ it('selects a newly created deck', async () => {
         <Workspace
             user={{ id: 1, name: 'Ada Lovelace', email: 'ada@example.com' }}
             loggedOut={vi.fn()}
+            userUpdated={vi.fn()}
         />,
     );
     await screen.findByRole('heading', { name: 'Existing deck' });
@@ -85,6 +86,7 @@ it('filters decks without replacing the workspace with a loading screen', async 
         <Workspace
             user={{ id: 1, name: 'Ada Lovelace', email: 'ada@example.com' }}
             loggedOut={vi.fn()}
+            userUpdated={vi.fn()}
         />,
     );
     await screen.findByRole('heading', { name: 'World Geography' });
@@ -94,4 +96,24 @@ it('filters decks without replacing the workspace with a loading screen', async 
     expect(screen.getByRole('heading', { name: 'World Geography' })).toBeInTheDocument();
     expect(screen.queryByText('Loading your learning space…')).not.toBeInTheDocument();
     await waitFor(() => expect(decksSpy).toHaveBeenCalledWith('world'));
+});
+
+it('opens profile settings from the account menu', async () => {
+    const browser = userEvent.setup();
+    vi.spyOn(api, 'decks').mockResolvedValue(page([]));
+    vi.spyOn(api, 'due').mockResolvedValue(page([]));
+
+    render(
+        <Workspace
+            user={{ id: 1, name: 'Ada Lovelace', email: 'ada@example.com' }}
+            loggedOut={vi.fn()}
+            userUpdated={vi.fn()}
+        />,
+    );
+
+    await browser.click(screen.getByRole('button', { name: /Ada Lovelace/ }));
+    await browser.click(screen.getByRole('menuitem', { name: 'Profile settings' }));
+
+    expect(screen.getByRole('heading', { name: 'Profile settings', level: 1 })).toBeInTheDocument();
+    expect(window.location.pathname).toBe('/profile');
 });

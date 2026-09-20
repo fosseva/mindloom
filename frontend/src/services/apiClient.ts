@@ -59,6 +59,20 @@ export const api = {
         await request<void>('/api/v1/logout', { method: 'DELETE' });
         csrfReady = false;
     },
+    updateProfile: (body: { name: string; email: string }) =>
+        request<ApiResource<User>>('/api/v1/user', {
+            method: 'PATCH',
+            body: JSON.stringify(body),
+        }),
+    updatePassword: (body: {
+        current_password: string;
+        password: string;
+        password_confirmation: string;
+    }) =>
+        request<void>('/api/v1/user/password', {
+            method: 'PUT',
+            body: JSON.stringify(body),
+        }),
     decks: (search = '', archived = false, perPage?: number) =>
         request<Page<Deck>>(
             `/api/v1/decks?include=cards_count,archived_cards_count&sort=sort_order&filter[archived]=${archived ? 1 : 0}${search ? `&filter[name]=${encodeURIComponent(search)}` : ''}${perPage ? `&per_page=${perPage}` : ''}`,
