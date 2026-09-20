@@ -6,6 +6,60 @@ use App\Models\CardType;
 use App\Models\Deck;
 use App\Models\LearningRecord;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
+
+test('learning record includes load only the viewer progress in one bulk query', function (string $endpoint, string $path) {
+    $user = User::factory()->create();
+    $otherUser = User::factory()->create();
+    $deck = Deck::factory()->for($user, 'owner')->create();
+    $cards = Card::factory()->count(3)->for($deck)->remember()->create();
+
+    foreach ($cards as $card) {
+        LearningRecord::factory()->for($card)->for($otherUser)->create(['review_count' => 99]);
+        LearningRecord::factory()->for($card)->for($user)->create(['review_count' => 7, 'due_at' => now()->subMinute()]);
+    }
+
+    $url = match ($endpoint) {
+        'index' => "/api/v1/decks/{$deck->id}/cards",
+        'show' => "/api/v1/cards/{$cards->first()->id}",
+        'due' => '/api/v1/cards/due',
+    };
+    DB::enableQueryLog();
+    DB::flushQueryLog();
+
+    $response = $this->actingAs($user)->getJson($url.'?include=learning_record');
+
+    $queries = collect(DB::getQueryLog())->filter(fn (array $query): bool => str_contains($query['query'], 'from "learning_records"'));
+    DB::disableQueryLog();
+    $response->assertOk()->assertJsonPath($path.'.learning_record.review_count', 7);
+    expect($queries)->toHaveCount(1);
+})->with([
+    'list' => ['index', 'data.0'],
+    'detail' => ['show', 'data'],
+    'due' => ['due', 'data.0'],
+]);
+
+test('a requested learning record is null when only another user has progress', function () {
+    $user = User::factory()->create();
+    $deck = Deck::factory()->for($user, 'owner')->create();
+    $card = Card::factory()->for($deck)->remember()->create();
+    LearningRecord::factory()->for($card)->create(['review_count' => 99]);
+
+    $this->actingAs($user)->getJson("/api/v1/cards/{$card->id}?include=learning_record")
+        ->assertOk()
+        ->assertJsonPath('data.learning_record', null);
+});
+
+test('viewer progress is omitted unless included', function () {
+    $user = User::factory()->create();
+    $deck = Deck::factory()->for($user, 'owner')->create();
+    $card = Card::factory()->for($deck)->remember()->create();
+    LearningRecord::factory()->for($card)->for($user)->create();
+
+    $this->actingAs($user)->getJson("/api/v1/cards/{$card->id}")
+        ->assertOk()
+        ->assertJsonMissingPath('data.learning_record');
+});
 
 dataset('card payloads', [
     'remember' => [
@@ -116,6 +170,11 @@ test('due cards only contain accessible cards that are currently due', function 
         'user_id' => $user->id,
         'card_id' => $dueCard->id,
         'due_at' => now()->subMinute(),
+    ]);
+    LearningRecord::factory()->create([
+        'user_id' => $otherUser->id,
+        'card_id' => $dueCard->id,
+        'review_count' => 5,
     ]);
     LearningRecord::factory()->create([
         'user_id' => $user->id,

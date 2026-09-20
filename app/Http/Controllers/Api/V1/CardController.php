@@ -7,6 +7,7 @@ use App\Actions\Cards\DeleteCardAction;
 use App\Actions\Cards\UpdateCardAction;
 use App\Http\Controllers\Controller;
 use App\Http\Includes\CardContentInclude;
+use App\Http\Includes\ViewerLearningRecordInclude;
 use App\Http\Requests\DeleteCardRequest;
 use App\Http\Requests\StoreCardRequest;
 use App\Http\Requests\UpdateCardRequest;
@@ -71,11 +72,7 @@ class CardController extends Controller
             ->allowedIncludes(
                 'type.ratings',
                 AllowedInclude::custom('content', new CardContentInclude),
-                AllowedInclude::callback(
-                    'learning_record',
-                    fn ($query) => $query->where('user_id', $userId),
-                    'learningRecords',
-                ),
+                AllowedInclude::custom('learning_record', new ViewerLearningRecordInclude($userId)),
             );
     }
 }

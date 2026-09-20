@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Includes\CardContentInclude;
+use App\Http\Includes\ViewerLearningRecordInclude;
 use App\Http\Resources\CardResource;
 use App\Models\Card;
 use Illuminate\Database\Eloquent\Builder;
@@ -34,10 +35,9 @@ class DueCardController extends Controller
             ->allowedIncludes(
                 'type.ratings',
                 AllowedInclude::custom('content', new CardContentInclude),
-                AllowedInclude::callback(
+                AllowedInclude::custom(
                     'learning_record',
-                    fn ($query) => $query->where('user_id', $request->user()->id),
-                    'learningRecords',
+                    new ViewerLearningRecordInclude($request->user()->id),
                 ),
             )
             ->paginate();

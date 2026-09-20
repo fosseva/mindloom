@@ -30,10 +30,7 @@ class CardResource extends JsonResource
                     );
                 },
             ),
-            'learning_record' => new LearningRecordResource($this->whenLoaded(
-                'learningRecords',
-                fn () => $this->learningRecords->firstWhere('user_id', $request->user()?->id),
-            )),
+            'learning_record' => new LearningRecordResource($this->whenLoaded('viewerLearningRecord')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
