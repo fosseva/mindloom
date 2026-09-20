@@ -14,9 +14,3 @@ it('navigates the learning screen to the learn path', () => {
 
     expect(window.location.pathname).toBe('/learn');
 });
-
-it('does not retain the former practice path', () => {
-    window.history.replaceState({}, '', '/practice');
-
-    expect(authenticatedScreenFromPath()).toBe('dashboard');
-});

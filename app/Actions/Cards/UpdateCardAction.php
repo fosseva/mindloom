@@ -3,6 +3,7 @@
 namespace App\Actions\Cards;
 
 use App\Models\Card;
+use App\Models\CardType;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -13,10 +14,11 @@ class UpdateCardAction
     {
         return DB::transaction(function () use ($card, $attributes): Card {
             $card->update(Arr::only($attributes, ['sort_order', 'archived_at']));
-            $relationship = $card->type->name->relationship();
-            $card->{$relationship}()->update(Arr::only($attributes, $card->type->name->fields()));
+            $type = CardType::findOrFail($card->type_id);
+            $relationship = $type->name->relationship();
+            $card->{$relationship}()->update(Arr::only($attributes, $type->name->fields()));
 
-            return $card->refresh()->load(['type.ratings', $relationship, 'learningRecords']);
+            return $card->refresh();
         });
     }
 }

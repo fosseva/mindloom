@@ -20,7 +20,7 @@ class CreateCardAction
             $card->{$type->name->relationship()}()->create(Arr::only($attributes, $type->name->fields()));
             $card->learningRecords()->create(['user_id' => $user->id, 'due_at' => now()]);
 
-            return $card->load(['type.ratings', $type->name->relationship(), 'learningRecords']);
+            return $card;
         });
     }
 }

@@ -1,17 +1,17 @@
 import type { CardType } from '../../types';
 
 export const cardTypeLabels: Record<CardType, string> = {
-    remember: 'Remember',
-    explain: 'Explain',
-    apply: 'Apply',
-    note: 'Note',
+    Remember: 'Remember',
+    Explain: 'Explain',
+    Apply: 'Apply',
+    Note: 'Note',
 };
 
 export const cardFields: Record<
     CardType,
     { key: string; label: string; required?: boolean; hint: string; placeholder: string }[]
 > = {
-    remember: [
+    Remember: [
         {
             key: 'question',
             label: 'Question',
@@ -39,7 +39,7 @@ export const cardFields: Record<
             placeholder: 'e.g. It has been the capital of France since the 12th century.',
         },
     ],
-    explain: [
+    Explain: [
         {
             key: 'prompt',
             label: 'Topic to explain',
@@ -68,7 +68,7 @@ export const cardFields: Record<
             placeholder: 'e.g. Seeing a rainbow after it rains on a sunny afternoon.',
         },
     ],
-    apply: [
+    Apply: [
         {
             key: 'scenario',
             label: 'Scenario',
@@ -100,7 +100,7 @@ export const cardFields: Record<
                 'e.g. Most recipes are flexible, and small substitutions rarely ruin a dish.',
         },
     ],
-    note: [
+    Note: [
         {
             key: 'title',
             label: 'Title',

@@ -23,7 +23,7 @@ class AppServiceProvider extends ServiceProvider
             forgotReviewAfterMinutes: Config::integer('reviews.policy.forgot_review_after_minutes'),
         ));
 
-        $this->app->singleton(ReviewScheduler::class, function (Application $app): ReviewScheduler {
+        $this->app->singleton(function (Application $app): ReviewScheduler {
             return match (SchedulerVersion::tryFrom(Config::string('reviews.default_algorithm'))) {
                 Fsrs6Scheduler::VERSION => $app->make(Fsrs6Scheduler::class),
                 default => throw new LogicException('The configured spaced-repetition algorithm is not supported.'),

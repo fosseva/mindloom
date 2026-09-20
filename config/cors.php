@@ -3,7 +3,7 @@
 return [
     'paths' => ['api/*', 'sanctum/csrf-cookie'],
     'allowed_methods' => ['*'],
-    'allowed_origins' => array_filter(explode(',', env('FRONTEND_URLS', 'http://mindloom.test:5174'))),
+    'allowed_origins' => [env('CORS_ALLOWED_ORIGIN', 'http://mindloom.test:5174')],
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],
     'exposed_headers' => [],

@@ -12,8 +12,9 @@ class CardTypeController extends Controller
 {
     public function index(): AnonymousResourceCollection
     {
-        $cardTypes = QueryBuilder::for(CardType::query()->with(['ratings' => fn ($query) => $query->orderBy('recall_quality')])->orderBy('id'))
+        $cardTypes = QueryBuilder::for(CardType::query()->orderBy('id'))
             ->allowedFilters('name')
+            ->allowedIncludes('ratings')
             ->get();
 
         return CardTypeResource::collection($cardTypes);

@@ -4,10 +4,10 @@ namespace App\Enums;
 
 enum CardTypeName: string
 {
-    case Remember = 'remember';
-    case Explain = 'explain';
-    case Apply = 'apply';
-    case Note = 'note';
+    case Remember = 'Remember';
+    case Explain = 'Explain';
+    case Apply = 'Apply';
+    case Note = 'Note';
 
     public function relationship(): string
     {

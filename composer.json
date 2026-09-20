@@ -16,6 +16,7 @@
         "spatie/laravel-query-builder": "^7.3"
     },
     "require-dev": {
+        "driftingly/rector-laravel": "^2.6",
         "fakerphp/faker": "^1.23",
         "larastan/larastan": "^3.12",
         "laravel/boost": "^2.2",
@@ -53,6 +54,7 @@
             "@php artisan dev"
         ],
         "test": [
+            "@test:rector",
             "@test:types",
             "@test:style",
             "@test:pest"
@@ -62,6 +64,7 @@
             "@php artisan test --compact"
         ],
         "test:style": "pint --test",
+        "test:rector": "rector process --dry-run --ansi",
         "test:types": "phpstan analyse --ansi --memory-limit=512M",
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",

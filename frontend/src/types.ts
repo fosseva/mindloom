@@ -1,4 +1,4 @@
-export type CardType = 'remember' | 'explain' | 'apply' | 'note';
+export type CardType = 'Remember' | 'Explain' | 'Apply' | 'Note';
 export type Rating = {
     id: number;
     card_type_id: number;
@@ -13,7 +13,7 @@ export type CardTypeDefinition = {
     ratings: Rating[];
 };
 export type User = { id: number; name: string; email: string };
-export type Learning = {
+export type LearningRecord = {
     due_at: string | null;
     last_reviewed_at: string | null;
     review_count: number;
@@ -27,7 +27,7 @@ export type Card = {
     sort_order: number;
     archived_at: string | null;
     content: Record<string, string | null>;
-    learning?: Learning;
+    learning_record?: LearningRecord;
 };
 export type Deck = {
     id: number;
@@ -43,9 +43,9 @@ export type Page<T> = { data: T[]; links: unknown; meta: PageMeta };
 export type ApiResource<T> = { data: T };
 export type CardReview = {
     id: number;
-    card_id: number;
+    card_id?: number;
     rating_id: number;
-    rating: Rating;
+    rating?: Rating;
     reviewed_at: string;
     interval_before_minutes: number;
     interval_after_minutes: number;

@@ -11,17 +11,34 @@ const card: Card = {
     type_id: 4,
     type: {
         id: 4,
-        name: 'note',
+        name: 'Note',
         description: 'A note worth revisiting.',
         ratings: [
-            { id: 41, card_type_id: 4, name: 'Revisit', description: 'Show this again soon.', recall_quality: 1 },
-            { id: 42, card_type_id: 4, name: 'Internalized', description: 'This feels familiar.', recall_quality: 4 },
+            {
+                id: 41,
+                card_type_id: 4,
+                name: 'Revisit',
+                description: 'Show this again soon.',
+                recall_quality: 1,
+            },
+            {
+                id: 42,
+                card_type_id: 4,
+                name: 'Internalized',
+                description: 'This feels familiar.',
+                recall_quality: 4,
+            },
         ],
     },
     sort_order: 0,
     archived_at: null,
     content: { title: 'Useful idea', content: 'Prefer simple systems.' },
-    learning: { due_at: null, last_reviewed_at: null, review_count: 0, current_interval_minutes: 0 },
+    learning_record: {
+        due_at: null,
+        last_reviewed_at: null,
+        review_count: 0,
+        current_interval_minutes: 0,
+    },
 };
 
 afterEach(() => vi.restoreAllMocks());

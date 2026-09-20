@@ -3,22 +3,45 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Includes\CardContentInclude;
 use App\Http\Resources\CardResource;
+use App\Models\Card;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Spatie\QueryBuilder\AllowedInclude;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class DueCardController extends Controller
 {
     public function __invoke(Request $request): AnonymousResourceCollection
     {
-        $learningRecords = $request->user()->learningRecords()
-            ->whereHas('card', fn ($query) => $query->whereNull('archived_at')->whereHas('deck', fn ($deckQuery) => $deckQuery->whereNull('archived_at')))
-            ->where(fn ($query) => $query->whereNull('due_at')->orWhere('due_at', '<=', now()))
-            ->with(['card.type.ratings', 'card.rememberCard', 'card.explainCard', 'card.applyCard', 'card.noteCard', 'card.learningRecords' => fn ($query) => $query->whereBelongsTo($request->user())])
-            ->orderByRaw('due_at IS NOT NULL')
-            ->orderBy('due_at')
+        $cards = QueryBuilder::for(
+            Card::query()
+                ->join('learning_records', fn (JoinClause $join) => $join
+                    ->on('learning_records.card_id', '=', 'cards.id')
+                    ->where('learning_records.user_id', $request->user()->id))
+                ->whereNull('cards.archived_at')
+                ->whereHas('deck', fn (Builder $query) => $query->whereNull('archived_at'))
+                ->where(fn (Builder $query) => $query
+                    ->whereNull('learning_records.due_at')
+                    ->orWhere('learning_records.due_at', '<=', now()))
+                ->select('cards.*')
+                ->orderByRaw('learning_records.due_at IS NOT NULL')
+                ->orderBy('learning_records.due_at'),
+        )
+            ->allowedIncludes(
+                'type.ratings',
+                AllowedInclude::custom('content', new CardContentInclude),
+                AllowedInclude::callback(
+                    'learning_record',
+                    fn ($query) => $query->where('user_id', $request->user()->id),
+                    'learningRecords',
+                ),
+            )
             ->paginate();
 
-        return CardResource::collection($learningRecords->through(fn ($item) => $item->card));
+        return CardResource::collection($cards);
     }
 }

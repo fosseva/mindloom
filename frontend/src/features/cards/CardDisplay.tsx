@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Archive, ArchiveRestore, BookOpen, Check, Pencil } from 'lucide-react';
 import { api } from '../../services/apiClient';
-import type { Card, CardReview, Learning } from '../../types';
+import type { Card, CardReview, LearningRecord } from '../../types';
 import { cardTypeLabels } from './cardConfig';
 const learningStateInfo = {
     new: { label: 'Not started', dot: 'bg-ink/30', text: 'text-ink/45' },
@@ -39,12 +39,13 @@ export function cardHeading(card: Card): string {
     );
 }
 
-export function ReviewStatusBadge({ learning }: { learning?: Learning }) {
-    const state = !learning || learning.review_count === 0
-        ? 'new'
-        : learning.due_at && new Date(learning.due_at) <= new Date()
-          ? 'due'
-          : 'scheduled';
+export function ReviewStatusBadge({ learningRecord }: { learningRecord?: LearningRecord }) {
+    const state =
+        !learningRecord || learningRecord.review_count === 0
+            ? 'new'
+            : learningRecord.due_at && new Date(learningRecord.due_at) <= new Date()
+              ? 'due'
+              : 'scheduled';
     const info = learningStateInfo[state];
     return (
         <span className="flex items-center gap-1.5 text-xs font-medium">
@@ -74,7 +75,7 @@ export function CardListItem({
                     <span className="rounded-full bg-sage px-3 py-1 text-xs font-bold text-moss">
                         {cardTypeLabels[card.type.name]}
                     </span>
-                    <ReviewStatusBadge learning={card.learning} />
+                    <ReviewStatusBadge learningRecord={card.learning_record} />
                 </div>
                 <p className={`truncate font-semibold ${onRestore ? 'text-ink/50' : ''}`}>
                     {cardHeading(card)}
@@ -117,7 +118,7 @@ export function CardListItem({
 }
 
 export function LearningCard({ card, reviewed }: { card: Card; reviewed: () => Promise<void> }) {
-    const [revealed, setRevealed] = useState(card.type.name === 'note');
+    const [revealed, setRevealed] = useState(card.type.name === 'Note');
     const [result, setResult] = useState<CardReview | null>(null);
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState('');
@@ -129,7 +130,7 @@ export function LearningCard({ card, reviewed }: { card: Card; reviewed: () => P
                 <span className="rounded-full bg-sage px-3 py-1 text-xs font-bold text-moss">
                     {cardTypeLabels[card.type.name]}
                 </span>
-                <ReviewStatusBadge learning={card.learning} />
+                <ReviewStatusBadge learningRecord={card.learning_record} />
             </div>
             <CardPrompt card={card} heading={heading} />
             {!revealed && (
@@ -138,9 +139,9 @@ export function LearningCard({ card, reviewed }: { card: Card; reviewed: () => P
                     onClick={() => setRevealed(true)}
                     className="mt-6 w-full rounded-xl border border-moss/25 bg-sage/45 px-4 py-3 text-sm font-semibold text-moss hover:bg-sage"
                 >
-                    {card.type.name === 'remember'
+                    {card.type.name === 'Remember'
                         ? 'Reveal answer'
-                        : card.type.name === 'explain'
+                        : card.type.name === 'Explain'
                           ? 'Show guidance'
                           : 'Show solution'}
                 </button>
@@ -210,11 +211,11 @@ export function LearningCard({ card, reviewed }: { card: Card; reviewed: () => P
 function CardPrompt({ card, heading }: { card: Card; heading: string }) {
     return (
         <div className="mt-5">
-            {card.type.name === 'apply' && (
+            {card.type.name === 'Apply' && (
                 <p className="mb-3 text-sm leading-6 text-ink/60">{card.content.scenario}</p>
             )}
             <h2 className="text-xl font-semibold leading-snug">{heading}</h2>
-            {card.type.name === 'remember' && card.content.hint && (
+            {card.type.name === 'Remember' && card.content.hint && (
                 <details className="mt-4 text-sm text-ink/55">
                     <summary className="cursor-pointer font-semibold text-moss">
                         Need a hint?
@@ -222,7 +223,7 @@ function CardPrompt({ card, heading }: { card: Card; heading: string }) {
                     <p className="mt-2">{card.content.hint}</p>
                 </details>
             )}
-            {card.type.name === 'note' && (
+            {card.type.name === 'Note' && (
                 <p className="mt-4 whitespace-pre-wrap text-base leading-7 text-ink/70">
                     {card.content.content}
                 </p>
@@ -233,18 +234,18 @@ function CardPrompt({ card, heading }: { card: Card; heading: string }) {
 
 function CardGuidance({ card }: { card: Card }) {
     const sections =
-        card.type.name === 'remember'
+        card.type.name === 'Remember'
             ? [
                   ['Answer', card.content.answer],
                   ['Notes', card.content.notes],
               ]
-            : card.type.name === 'explain'
+            : card.type.name === 'Explain'
               ? [
                     ['Expected explanation', card.content.explanation],
                     ['Key points', card.content.key_points],
                     ['Example', card.content.example],
                 ]
-              : card.type.name === 'apply'
+              : card.type.name === 'Apply'
                 ? [
                       ['Suggested solution', card.content.solution],
                       ['Key takeaway', card.content.key_takeaway],

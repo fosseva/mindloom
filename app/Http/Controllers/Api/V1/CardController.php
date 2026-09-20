@@ -6,6 +6,7 @@ use App\Actions\Cards\CreateCardAction;
 use App\Actions\Cards\DeleteCardAction;
 use App\Actions\Cards\UpdateCardAction;
 use App\Http\Controllers\Controller;
+use App\Http\Includes\CardContentInclude;
 use App\Http\Requests\DeleteCardRequest;
 use App\Http\Requests\StoreCardRequest;
 use App\Http\Requests\UpdateCardRequest;
@@ -18,13 +19,18 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedInclude;
 use Spatie\QueryBuilder\QueryBuilder;
 
 class CardController extends Controller
 {
     public function index(ViewDeckRequest $request, Deck $deck): AnonymousResourceCollection
     {
-        return CardResource::collection($this->query($deck->cards()->getQuery(), $request->user()->id)->defaultSort('sort_order')->paginate());
+        $cards = $this->query($deck->cards()->getQuery(), $request->user()->id)
+            ->defaultSort('sort_order')
+            ->paginate();
+
+        return CardResource::collection($cards);
     }
 
     public function store(StoreCardRequest $request, Deck $deck, CreateCardAction $action): CardResource
@@ -51,9 +57,25 @@ class CardController extends Controller
 
     private function query(Builder $query, int $userId): QueryBuilder
     {
-        return QueryBuilder::for($query->with(['type.ratings', 'rememberCard', 'explainCard', 'applyCard', 'noteCard', 'learningRecords' => fn ($query) => $query->where('user_id', $userId)]))
-            ->allowedFilters(AllowedFilter::callback('type', fn (Builder $query, mixed $value) => $query->whereHas('type', fn (Builder $typeQuery) => $typeQuery->where('name', $value))), AllowedFilter::callback('archived', fn (Builder $query, mixed $value) => $value ? $query->whereNotNull('archived_at') : $query->whereNull('archived_at')))
+        return QueryBuilder::for($query)
+            ->allowedFilters(
+                AllowedFilter::exact('type', 'type.name'),
+                AllowedFilter::callback(
+                    'archived',
+                    fn (Builder $query, mixed $value) => $value
+                        ? $query->whereNotNull('archived_at')
+                        : $query->whereNull('archived_at'),
+                ),
+            )
             ->allowedSorts('sort_order', 'created_at')
-            ->allowedIncludes('deck');
+            ->allowedIncludes(
+                'type.ratings',
+                AllowedInclude::custom('content', new CardContentInclude),
+                AllowedInclude::callback(
+                    'learning_record',
+                    fn ($query) => $query->where('user_id', $userId),
+                    'learningRecords',
+                ),
+            );
     }
 }

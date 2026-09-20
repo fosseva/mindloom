@@ -11,6 +11,7 @@ export class ApiError extends Error {
 }
 
 let csrfReady = false;
+const cardIncludes = 'type.ratings,content,learning_record';
 const url = (path: string) => `${config.apiBaseUrl}${path}`;
 const csrf = async () => {
     if (csrfReady) return;
@@ -64,10 +65,10 @@ export const api = {
         ),
     cards: (deckId: number, type = '', archived = false) =>
         request<Page<Card>>(
-            `/api/v1/decks/${deckId}/cards?include=deck&sort=sort_order&filter[archived]=${archived ? 1 : 0}${type ? `&filter[type]=${type}` : ''}`,
+            `/api/v1/decks/${deckId}/cards?include=${cardIncludes}&sort=sort_order&filter[archived]=${archived ? 1 : 0}${type ? `&filter[type]=${type}` : ''}`,
         ),
-    due: () => request<Page<Card>>('/api/v1/cards/due'),
-    cardTypes: () => request<{ data: CardTypeDefinition[] }>('/api/v1/card-types'),
+    due: () => request<Page<Card>>(`/api/v1/cards/due?include=${cardIncludes}`),
+    cardTypes: () => request<{ data: CardTypeDefinition[] }>('/api/v1/card-types?include=ratings'),
     createDeck: (body: { name: string; description?: string }) =>
         request<{ data: Deck }>('/api/v1/decks', { method: 'POST', body: JSON.stringify(body) }),
     updateDeck: (

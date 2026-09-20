@@ -17,7 +17,7 @@ export function CardForm({
     close: () => void;
     saved: () => Promise<void>;
 }) {
-    const [type, setType] = useState<CardType>(existing?.type.name ?? 'remember');
+    const [type, setType] = useState<CardType>(existing?.type.name ?? 'Remember');
     const [cardTypes, setCardTypes] = useState<CardTypeDefinition[]>([]);
     const [values, setValues] = useState<Record<string, string>>(() =>
         existing
@@ -98,7 +98,10 @@ export function CardForm({
                         multiline
                     />
                 ))}
-                <button disabled={!existing && !selectedType} className="mt-1 rounded-xl bg-moss p-2.5 text-sm font-semibold text-white hover:bg-ink disabled:opacity-50">
+                <button
+                    disabled={!existing && !selectedType}
+                    className="mt-1 rounded-xl bg-moss p-2.5 text-sm font-semibold text-white hover:bg-ink disabled:opacity-50"
+                >
                     {existing
                         ? 'Save changes'
                         : `Create ${cardTypeLabels[type].toLowerCase()} card`}
